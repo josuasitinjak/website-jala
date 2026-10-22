@@ -192,7 +192,73 @@ async function safeSend(msg, text) {
   }
 }
 
-// Unified message handler
+// User session memory: stores multi-turn chat history & active order drafts per sender
+const userSessions = new Map();
+
+function getSession(senderId) {
+  if (!userSessions.has(senderId)) {
+    userSessions.set(senderId, {
+      history: [], // [{ role: 'user' | 'assistant', content: string }]
+      orderDraft: null, // { items, customerName, address, paymentMethod, total }
+      lastActive: Date.now()
+    });
+  }
+  const session = userSessions.get(senderId);
+  session.lastActive = Date.now();
+  return session;
+}
+
+// Clean up stale sessions after 2 hours
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, sess] of userSessions.entries()) {
+    if (now - sess.lastActive > 2 * 60 * 60 * 1000) {
+      userSessions.delete(id);
+    }
+  }
+}, 30 * 60 * 1000);
+
+function getMenuText() {
+  return `🍛 *DAFTAR LENGKAP MENU RESMI JALA* 🍛
+_Warisan Melayu Kepri, Sentuhan Modern Praktis_
+
+*MENU UTAMA (Roti Kirai Berinti):*
+▫️ *Roti Kirai — Kari Kentang*
+💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
+✨ *Cita Rasa:* Isian kentang dadu bumbu rempah kari Melayu harum & gurih klasik dalam gulungan jala kunyit lembut.
+
+▫️ *Roti Kirai — Ayam Suwir*
+💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
+✨ *Cita Rasa:* Daging ayam suwir bumbu gurih manis meresap, padat, dan mengenyangkan.
+
+▫️ *Roti Kirai — Keju*
+💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
+✨ *Cita Rasa:* Keju leleh gurih dan creamy lumer di mulut. Favorit kekinian!
+
+*MINUMAN SEGAR:*
+▫️ *Es Telang Lemonade*
+💰 *Harga:* Rp5.000 / cup
+✨ *Cita Rasa:* Rebusan bunga telang biru alami dipadu perasan lemon segar & es batu. Asam manis segar penyeimbang gurih!
+
+*PAKET BUNDLING HEMAT:*
+📦 *Paket Hemat* (Rp10.000) — 3 buah Roti Kirai
+📦 *Paket Lengkap* (Rp15.000) — 1 porsi (4 buah) + 1 cup Es Telang (Hemat Rp2.000)
+📦 *Paket Berdua* (Rp30.000) — 2 porsi makanan + 2 cup Es Telang (Hemat Rp4.000)
+📦 *Paket Puas* (Rp42.000) — 3 porsi makanan + 2 cup Es Telang (Hemat Rp4.000)
+
+*KODE VOUCHER PROMO:*
+🎁 *JALABATAM* : Potongan Rp3.000 (Min. Rp20.000)
+🎁 *SMANSAHEMAT* : Diskon 10% (Min. Rp25.000)
+
+──────────────
+_Ketik *2* atau sebutkan pesanan Kakak untuk langsung memesan di sini! 😊_`;
+}
+
+function getPromoText() {
+  return `🎁 *KODE VOUCHER PROMO JALA* 🎁\n\n▫️ *JALABATAM* : Potongan Rp3.000 (Min. belanja Rp20.000)\n▫️ *SMANSAHEMAT* : Diskon 10% (Min. belanja Rp25.000)\n\nKakak bisa sebutkan kode voucher ini saat memesan di WhatsApp ini atau masukkan saat checkout di website kami di http://localhost:3000 ya! ✨\n\nMau langsung pesan sekarang, Kak? Ketik *2* atau sebutkan menu favorit Kakak! 😊`;
+}
+
+// Unified message handler with multi-turn memory & state machine
 async function handleIncomingMessage(msg) {
   // Prevent reply in group chats
   if (msg.from && msg.from.includes('@g.us')) return;
@@ -207,40 +273,116 @@ async function handleIncomingMessage(msg) {
   const text = msg.body?.trim();
   if (!text) return; // ignore empty messages
 
-  console.log(`💬 Pesan dari ${msg.from}: "${text}"`);
+  const session = getSession(msg.from);
+  console.log(`💬 Pesan dari ${msg.from}: "${text}" (Ada Draft: ${!!session.orderDraft})`);
 
-  // 1. Check if user is asking to track an order (supports JALA-1001, JALA1001, JALA 1001, CAP-1001)
+  // Helper untuk menyimpan riwayat chat dua arah
+  const saveTurn = (userText, botText) => {
+    session.history.push({ role: 'user', content: userText });
+    session.history.push({ role: 'assistant', content: botText });
+    if (session.history.length > 10) {
+      session.history = session.history.slice(-10);
+    }
+  };
+
+  const lowerText = text.toLowerCase().trim();
+
+  // 1. Pembatalan Pesanan Aktif
+  if (lowerText === 'batal' || lowerText === 'cancel' || lowerText === 'batal pesan') {
+    if (session.orderDraft) {
+      session.orderDraft = null;
+      const cancelReply = "Pesanan Kakak sebelumnya telah dibatalkan. Ada yang ingin Kakak tanyakan atau pesan kembali? Ketik *1* untuk melihat menu ya! 😊";
+      saveTurn(text, cancelReply);
+      await safeSend(msg, cancelReply);
+      return;
+    }
+  }
+
+  // 2. Menu Pintasan Cepat Berdasarkan Angka ("1", "2", "3", "4")
+  if (lowerText === '1' || lowerText === 'menu' || lowerText === 'daftar menu' || lowerText === 'list menu') {
+    const menuMsg = getMenuText();
+    saveTurn(text, menuMsg);
+    await safeSend(msg, menuMsg);
+    return;
+  }
+
+  if (lowerText === '2' && !session.orderDraft) {
+    session.orderDraft = { items: [], customerName: null, address: null, paymentMethod: 'COD' };
+    const orderPrompt = `🛍️ *PANDUAN PEMESANAN LANGSUNG VIA WHATSAPP* 🛍️\n\nKakak mau pesan menu apa dan berapa porsi nih?\nContoh:\n👉 *"Pesan 2 Paket Lengkap dan 1 Roti Keju"*\n\nAtau jika mau langsung lengkap dalam 1 pesan, salin format ini ya:\n\n*PESAN JALA*\n👤 *Nama:* [Nama Lengkap]\n📍 *Lokasi/Kelas:* [Contoh: Ruang Guru / Kelas X MIPA 1]\n🍛 *Pesanan:* [Contoh: 2 Paket Lengkap]\n💳 *Metode Bayar:* [COD / QRIS]`;
+    saveTurn(text, orderPrompt);
+    await safeSend(msg, orderPrompt);
+    return;
+  }
+
+  if (lowerText === '3' || lowerText === 'promo' || lowerText === 'voucher' || lowerText === 'diskon') {
+    const promoMsg = getPromoText();
+    saveTurn(text, promoMsg);
+    await safeSend(msg, promoMsg);
+    return;
+  }
+
+  if (lowerText === '4' && !/(JALA|CAP)[- ]?(\d{4})/i.test(text)) {
+    const lacakMsg = `🔍 *LACAK STATUS PESANAN JALA* 🔍\n\nSilakan ketik nomor resi pesanan Kakak ya!\nContoh: *LACAK JALA-1001* atau langsung ketik *JALA-1001* ✨\n\nStatus pesanan akan langsung ditampilkan secara real-time dari dapur JALA! 🛵`;
+    saveTurn(text, lacakMsg);
+    await safeSend(msg, lacakMsg);
+    return;
+  }
+
+  // 3. Check if user is asking to track an order (supports JALA-1001, JALA1001, JALA 1001, CAP-1001)
   const trackingRegex = /(JALA|CAP)[- ]?(\d{4})/i;
-  const match = text.match(trackingRegex);
+  const trackingMatch = text.match(trackingRegex);
   
-  if (match) {
-    const normalizedOrderId = `${match[1].toUpperCase()}-${match[2]}`;
+  if (trackingMatch) {
+    const normalizedOrderId = `${trackingMatch[1].toUpperCase()}-${trackingMatch[2]}`;
     console.log(`🔍 Melacak pesanan: ${normalizedOrderId} untuk ${msg.from}`);
     const trackingResult = await trackOrder(normalizedOrderId);
+    saveTurn(text, trackingResult);
     await safeSend(msg, trackingResult);
     return;
   }
 
-  // 2. Format Pemesanan Cepat
+  // 4. Format Pemesanan Cepat
   const formatRegex = /^(FORMAT|CARA PESAN|FORMAT PESAN|FORMAT ORDER|CARA ORDER)/i;
   if (formatRegex.test(text)) {
     const formatGuide = `📋 *FORMAT CEPAT PEMESANAN VIA WHATSAPP JALA* 📋\n\nKakak bisa salin & lengkapi format di bawah ini ya:\n\n*PESAN JALA*\n👤 *Nama:* [Nama Lengkap Kakak]\n📍 *Lokasi/Kelas:* [Contoh: Ruang Guru / Kelas X MIPA 1]\n🍛 *Pesanan:* [Contoh: 2 Paket Lengkap, 1 Roti Keju]\n💳 *Metode Bayar:* [COD / QRIS]\n\n_Kirimkan ke chat ini, dan pesanan Kakak akan langsung otomatis masuk ke sistem dapur & Admin Dashboard JALA! ✨_`;
+    saveTurn(text, formatGuide);
     await safeSend(msg, formatGuide);
     return;
   }
-  
-  // 3. Deteksi Niat Pemesanan (Pintu WhatsApp Langsung)
-  const orderKeywords = /(pesan|order|beli|mau beli|mau pesan|pesan jala)/i;
-  const isPotentialOrder = orderKeywords.test(text);
 
-  if (isPotentialOrder) {
+  // 5. State Machine Pemesanan Dua Pintu (Mendukung Multi-Turn):
+  // Aktif jika ada draft berjalan ATAU pesan menyebutkan pemesanan / nama menu
+  const orderKeywords = /(pesan|order|beli|mau beli|mau pesan|paket|roti|telang|kari|keju|ayam|kirai)/i;
+  const isOrderContext = !!session.orderDraft || orderKeywords.test(text);
+
+  if (isOrderContext) {
     try {
-      console.log(`🛒 Memproses analisis pesanan otomatis via WhatsApp...`);
+      console.log(`🛒 Memproses analisis pesanan multi-turn (Draft saat ini: ${JSON.stringify(session.orderDraft)})...`);
+      
       const parseCompletion = await groq.chat.completions.create({
         messages: [
           {
             role: 'system',
-            content: `Kamu adalah asisten kasir pintar JALA. Tugasmu menganalisis apakah pesan pelanggan berisi niat memesan makanan JALA dan mengekstrak rinciannya.
+            content: `Kamu adalah asisten kasir pintar JALA. Tugasmu mengumpulkan dan memperbarui data pesanan pelanggan.
+Draft pesanan yang sudah terkumpul sejauh ini:
+${JSON.stringify(session.orderDraft || { items: [], customerName: null, address: null, paymentMethod: 'COD' })}
+
+Riwayat percakapan sebelumnya:
+${session.history.slice(-4).map(h => `${h.role}: ${h.content}`).join('\n')}
+
+Pesan terbaru dari pelanggan: "${text}"
+
+ATURAN PARSING:
+1. Perbarui data yang sudah ada dengan informasi baru dari pesan pelanggan.
+2. Jika pelanggan menyebutkan nama (misal: "Josua", "atas nama Budi"), masukkan ke customerName. JANGAN anggap nama tersebut sebagai pertanyaan tentang tim manajemen jika pelanggan sedang memesan!
+3. Jika pelanggan menyebutkan kelas/ruangan/alamat (misal: "Kelas X Hang Lekir 9", "Ruang Guru", "tes"), masukkan ke address.
+4. Jika pelanggan menyebutkan menu atau paket, masukkan/tambahkan ke items sesuai daftar resmi.
+5. "isComplete" HANYA bernilai true jika:
+   - items minimal ada 1 (quantity > 0)
+   - customerName BUKAN null (sudah terisi)
+   - address BUKAN null (sudah terisi)
+6. Jika belum lengkap, berikan "replyMessage" yang menyebutkan apa yang sudah dicatat dan menanyakan field apa yang masih kurang dengan sopan & ramah.
+
 Katalog Resmi & Harga:
 - Roti Kirai Berinti — Kari Kentang (Rp12000)
 - Roti Kirai Berinti — Ayam Suwir (Rp12000)
@@ -251,11 +393,7 @@ Katalog Resmi & Harga:
 - Paket Berdua (Rp30000)
 - Paket Puas (Rp42000)
 
-Aturan:
-1. Jika pelanggan menyebutkan item pesanan dan nama/alamat (lokasi antar), buat "isOrder": true.
-2. Hitung total harga dengan tepat.
-3. Jika info belum lengkap (misal: belum ada nama, alamat kelas/ruang pengantaran, atau item spesifik), set "isComplete": false dan berikan "replyMessage" yang menanyakan kelengkapannya dengan ramah.
-4. Output HANYA JSON Object valid tanpa markdown:
+Output HANYA JSON Object valid:
 {
   "isOrder": boolean,
   "isComplete": boolean,
@@ -264,7 +402,7 @@ Aturan:
   "paymentMethod": "COD" atau "QRIS",
   "items": [{"name": string resmi, "quantity": number, "price": number}],
   "total": number,
-  "replyMessage": string ramah khas Melayu
+  "replyMessage": string ramah
 }`
           },
           { role: 'user', content: text }
@@ -275,132 +413,100 @@ Aturan:
 
       const parsed = JSON.parse(parseCompletion.choices[0]?.message?.content || '{}');
 
-      if (parsed.isOrder && parsed.isComplete && parsed.items && parsed.items.length > 0) {
-        // Pemesanan Lengkap -> Kirim langsung ke API Backend
-        const orderPayload = {
-          customerName: parsed.customerName || 'Pelanggan WhatsApp',
-          address: parsed.address || 'SMAN 1 Batam',
-          items: parsed.items,
-          total: parsed.total || parsed.items.reduce((sum, i) => sum + (i.price * i.quantity), 0),
-          paymentMethod: parsed.paymentMethod || 'COD',
-          paymentStatus: parsed.paymentMethod === 'QRIS' ? 'Menunggu QRIS' : 'Bayar di Tempat (COD)',
-          orderSource: 'WhatsApp'
-        };
+      if (parsed.isOrder) {
+        if (parsed.isComplete && parsed.items && parsed.items.length > 0 && parsed.customerName && parsed.address) {
+          // Seluruh data lengkap! Buat pesanan ke API
+          const orderPayload = {
+            customerName: parsed.customerName,
+            address: parsed.address,
+            items: parsed.items,
+            total: parsed.total || parsed.items.reduce((sum, i) => sum + (i.price * i.quantity), 0),
+            paymentMethod: parsed.paymentMethod || 'COD',
+            paymentStatus: parsed.paymentMethod === 'QRIS' ? 'Menunggu QRIS' : 'Bayar di Tempat (COD)',
+            orderSource: 'WhatsApp'
+          };
 
-        const createdOrder = await createOrderFromWhatsApp(orderPayload);
+          const createdOrder = await createOrderFromWhatsApp(orderPayload);
 
-        if (createdOrder) {
-          const itemLines = createdOrder.items.map(i => `▫️ *${i.quantity}x ${i.name}* — Rp${(i.quantity * i.price).toLocaleString('id-ID')}`).join('\n');
+          if (createdOrder) {
+            // Hapus draft karena pesanan telah sukses
+            session.orderDraft = null;
 
-          let receipt = `🎉 *PESANAN JALA RESMI BERHASIL DIBUAT!* 🎉\n\nHalo Kak *${createdOrder.customerName}*! Pesanan Kakak telah resmi tercatat di sistem dapur JALA:\n\n🔖 *Nomor Resi / ID Pesanan:*\n👉 *${createdOrder.id}*\n\n📋 *Rincian Menu:*\n${itemLines}\n────────────────────────\n💰 *Total Tagihan:* *Rp${createdOrder.total.toLocaleString('id-ID')}*\n💳 *Metode Pembayaran:* *${createdOrder.paymentMethod}*\n📍 *Lokasi Pengantaran:* ${createdOrder.address}\n\n🛵 *Status:* Pesanan Diterima Dapur\n\nKakak bisa cek status pesanan kapan saja langsung di WhatsApp ini dengan mengetik:\n👉 *LACAK ${createdOrder.id}*\n\n_(Data pesanan ini sudah otomatis tersinkronisasi 2 arah ke Admin Dashboard & Website JALA)_ ✨`;
+            const itemLines = createdOrder.items.map(i => `▫️ *${i.quantity}x ${i.name}* — Rp${(i.quantity * i.price).toLocaleString('id-ID')}`).join('\n');
 
-          if (createdOrder.paymentMethod === 'QRIS') {
-            receipt += `\n\n📱 *Pembayaran QRIS:*\nSilakan transfer sesuai nominal *Rp${createdOrder.total.toLocaleString('id-ID')}* ke QRIS resmi JALA di website atau hubungi kasir kami ya Kak!`;
+            let receipt = `🎉 *PESANAN JALA RESMI BERHASIL DIBUAT!* 🎉\n\nHalo Kak *${createdOrder.customerName}*! Pesanan Kakak telah resmi tercatat di sistem dapur JALA SMAN 1 Batam:\n\n🔖 *Nomor Resi / ID Pesanan:*\n👉 *${createdOrder.id}*\n\n📋 *Rincian Menu:*\n${itemLines}\n────────────────────────\n💰 *Total Tagihan:* *Rp${createdOrder.total.toLocaleString('id-ID')}*\n💳 *Metode Pembayaran:* *${createdOrder.paymentMethod}*\n📍 *Lokasi Pengantaran:* ${createdOrder.address}\n\n🛵 *Status:* Pesanan Diterima Dapur\n\nKakak bisa cek status pesanan kapan saja langsung di WhatsApp ini dengan mengetik:\n👉 *LACAK ${createdOrder.id}*\n\n_(Data pesanan ini sudah otomatis tersinkronisasi 2 arah ke Admin Dashboard & Website JALA)_ ✨`;
+
+            if (createdOrder.paymentMethod === 'QRIS') {
+              receipt += `\n\n📱 *Pembayaran QRIS:*\nSilakan transfer sesuai nominal *Rp${createdOrder.total.toLocaleString('id-ID')}* ke QRIS resmi JALA di website atau hubungi kasir kami ya Kak!`;
+            }
+
+            saveTurn(text, receipt);
+            await safeSend(msg, receipt);
+            return;
           }
+        } else {
+          // Pesanan sedang berjalan tapi belum lengkap -> SIMPAN DRAFT KE SESSION!
+          session.orderDraft = {
+            items: parsed.items || session.orderDraft?.items || [],
+            customerName: parsed.customerName || session.orderDraft?.customerName || null,
+            address: parsed.address || session.orderDraft?.address || null,
+            paymentMethod: parsed.paymentMethod || session.orderDraft?.paymentMethod || 'COD',
+            total: parsed.total || session.orderDraft?.total || 0
+          };
 
-          await safeSend(msg, receipt);
+          const missingPrompt = parsed.replyMessage || "Wah siap Kak! Mau tolong dilengkapi Nama Pemesan, Lokasi Pengantaran (Kelas/Ruangan), dan Metode Bayar (COD/QRIS) agar langsung kami proses ya! 😊";
+          saveTurn(text, missingPrompt);
+          await safeSend(msg, missingPrompt);
           return;
         }
-      } else if (parsed.isOrder && !parsed.isComplete) {
-        // Pesanan terdeteksi tapi belum lengkap -> minta info yang kurang
-        await safeSend(msg, parsed.replyMessage || "Wah siap Kak! Mau tolong dilengkapi Nama Pemesan, Lokasi Pengantaran (Kelas/Ruangan), dan Metode Bayar (COD/QRIS) agar langsung kami proses ya! 😊");
-        return;
       }
     } catch (parseErr) {
-      console.warn('Order parser fallback to regular chat:', parseErr.message);
+      console.warn('Order state machine error:', parseErr.message);
     }
   }
-  
-  // 4. Default: AI Customer Service response with rich WhatsApp formatting
+
+  // 6. Default: Multi-Turn Conversational AI Customer Service
   try {
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: `Kamu adalah AI Customer Service resmi dari "JALA" — brand Contemporary Malay Heritage Culinary (projek PKWU siswa SMAN 1 Batam, Kelas X Hang Lekir 9).
+    const systemPrompt = {
+      role: 'system',
+      content: `Kamu adalah AI Customer Service resmi dari "JALA" — brand Contemporary Malay Heritage Culinary (projek PKWU siswa SMAN 1 Batam, Kelas X Hang Lekir 9).
 Tagline: "Warisan Melayu Kepri, Sentuhan Modern Praktis"
 
 SISTEM PEMESANAN DUA PINTU:
 1. Pelanggan bisa memesan lewat WEBSITE (http://localhost:3000) ATAU langsung lewat CHAT WHATSAPP ini!
-2. Jika pelanggan ingin memesan lewat WhatsApp, mereka cukup sebutkan:
-   - Nama
-   - Lokasi / Kelas di SMAN 1 Batam
-   - Menu yang dipesan
-   - Metode Bayar (COD atau QRIS)
-   Atau ketik *FORMAT* untuk template praktis!
+2. Jika pelanggan ingin memesan lewat WhatsApp, mereka cukup sebutkan menu, nama, lokasi kelas, dan metode bayar (COD/QRIS).
 
 ATURAN FORMAT TAMPILAN WHATSAPP (SANGAT KRUSIAL):
-1. JANGAN PERNAH membuat tabel Markdown (| kolom 1 | kolom 2 |) atau garis horizontal (---)! Di WhatsApp HP tabel TIDAK BISA dibaca dan tampak hancur dengan garis-garis pipa (|).
-2. Gunakan HANYA format teks WhatsApp native yang bersih, rapi, dan mudah dibaca:
-   - Gunakan SATU bintang (*tebal*) untuk bold judul & poin penting. JANGAN gunakan dua bintang (**).
-   - Gunakan bullet point emoji yang estetik dan ramah (🍛, 🥤, 📦, 💰, ✨, 📍, 👉, 🛵).
-   - Berikan spasi satu baris kosong antar menu agar tampilan chat lega dan tidak menumpuk padat.
-3. SELALU buat jawaban INTERAKTIF & MENARIK:
+1. JANGAN PERNAH membuat tabel Markdown (| kolom 1 | kolom 2 |) atau garis horizontal (---)!
+2. Gunakan SATU bintang (*tebal*) untuk bold. JANGAN gunakan dua bintang (**).
+3. Gunakan bullet point emoji yang estetik dan ramah (🍛, 🥤, 📦, 💰, ✨, 📍, 👉, 🛵).
+4. Berikan spasi satu baris kosong antar menu agar chat nyaman dibaca di layar HP.
+5. SELALU buat jawaban INTERAKTIF & MENARIK:
    - Sambut dengan hangat, sopan, dan santun khas Melayu (panggil pelanggan "Kak" atau "Kakak").
-   - Akhiri jawaban dengan pertanyaan interaktif atau opsi tindakan, contoh:
-     "Kira-kira Kakak mau coba rasa gurih kari atau yang creamy keju nih? 😊
-     Bisa langsung pesan di chat ini atau lewat website kami di http://localhost:3000 ya!"
    - Jika pelanggan baru menyapa ("halo", "hai", "p"), tawarkan menu panduan cepat:
-     1️⃣ Ketik *MENU* untuk daftar menu & paket hemat
-     2️⃣ Ketik *PESAN* untuk panduan pesan via WhatsApp
-     3️⃣ Ketik *PROMO* untuk voucher diskon aktif
-     4️⃣ Ketik *LACAK (No Resi)* untuk cek status pesanan
+     1️⃣ Ketik *1* untuk melihat Daftar Menu
+     2️⃣ Ketik *2* untuk Pesan langsung via WhatsApp
+     3️⃣ Ketik *3* untuk Voucher Promo Diskon
+     4️⃣ Ketik *4* untuk Cek Status Pesanan (Resi)`
+    };
 
-LINI PRODUK & HARGA RESMI JALA:
+    // Sertakan riwayat percakapan sebelumnya agar AI punya memori percakapan penuh!
+    const contextMessages = [
+      systemPrompt,
+      ...session.history.slice(-6),
+      { role: 'user', content: text }
+    ];
 
-1. Menu Satuan (Roti Kirai Berinti):
-🍛 *Roti Kirai Berinti — Kari Kentang*
-💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
-✨ *Cita Rasa:* Kentang dadu bumbu rempah kari Melayu harum & gurih klasik dalam gulungan jala kunyit lembut.
-
-🍛 *Roti Kirai Berinti — Ayam Suwir*
-💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
-✨ *Cita Rasa:* Daging ayam suwir bumbu gurih manis meresap, padat, dan mengenyangkan.
-
-🍛 *Roti Kirai Berinti — Keju*
-💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
-✨ *Cita Rasa:* Keju leleh gurih dan creamy lumer di mulut. Favorit kekinian!
-
-2. Minuman Segar:
-🥤 *Es Telang Lemonade*
-💰 *Harga:* Rp5.000 / cup
-✨ *Cita Rasa:* Rebusan bunga telang biru alami dipadu perasan lemon segar & es batu. Asam manis segar penyeimbang gurih!
-
-3. Paket Bundling (Pilihan Paling Hemat):
-📦 *Paket Hemat* (Rp10.000)
-👉 Isi: 3 buah Roti Kirai Berinti pilihanmu. Praktis untuk ganjal lapar!
-
-📦 *Paket Lengkap* (Rp15.000 — Hemat Rp2.000)
-👉 Isi: 1 porsi Roti Kirai (4 buah) + 1 cup Es Telang Lemonade. Paling favorit!
-
-📦 *Paket Berdua* (Rp30.000 — Hemat Rp4.000)
-👉 Isi: 2 porsi makanan (8 buah Roti Kirai) + 2 cup Es Telang Lemonade.
-
-📦 *Paket Puas* (Rp42.000 — Hemat Rp4.000)
-👉 Isi: 3 porsi makanan (12 buah Roti Kirai) + 2 cup Es Telang Lemonade. Cocok buat nongkrong rame-rame!
-
-KODE PROMO / VOUCHER AKTIF DI WEB:
-🎁 *JALABATAM* : Potongan Rp3.000 (Min. belanja Rp20.000)
-🎁 *SMANSAHEMAT* : Diskon 10% (Min. belanja Rp25.000)
-
-STRUKTUR PENGURUS TIM JALA (SMAN 1 BATAM):
-1. Josua Sitinjak — Chief Executive Officer (CEO) — Technology, Finance & Strategy
-2. Gabriel — Chief Operating & Commercial Officer (COO)
-3. Haura — Chief Product & Creative Officer (CPCO)
-4. Letty — Chief Marketing & Customer Officer (CMCO)
-
-KEAMANAN:
-- Data HPP modal internal bersifat rahasia manajemen. Jawab dengan sopan bahwa data tersebut bersifat internal tim.`
-        },
-        { role: 'user', content: text }
-      ],
+    const chatCompletion = await groq.chat.completions.create({
+      messages: contextMessages,
       model: 'openai/gpt-oss-20b',
       temperature: 0.6,
       max_tokens: 380,
     });
-    
+
     const rawAiResponse = chatCompletion.choices[0]?.message?.content || 'Halo Kak! Ada yang bisa kami bantu seputar menu lezat JALA hari ini? 😊';
     const aiResponse = formatForWhatsApp(rawAiResponse);
+    saveTurn(text, aiResponse);
     console.log(`🤖 AI Response: "${aiResponse.slice(0, 70)}..."`);
     await safeSend(msg, aiResponse);
   } catch (error) {
