@@ -412,6 +412,7 @@ Output HANYA JSON Object valid:
       });
 
       const parsed = JSON.parse(parseCompletion.choices[0]?.message?.content || '{}');
+      console.log(`🤖 Parsed Order: isOrder=${parsed.isOrder}, isComplete=${parsed.isComplete}, Name=${parsed.customerName}, Items=${parsed.items?.length}`);
 
       if (parsed.isOrder) {
         if (parsed.isComplete && parsed.items && parsed.items.length > 0 && parsed.customerName && parsed.address) {
@@ -426,7 +427,9 @@ Output HANYA JSON Object valid:
             orderSource: 'WhatsApp'
           };
 
+          console.log('📦 Membuat pesanan baru ke API:', JSON.stringify(orderPayload));
           const createdOrder = await createOrderFromWhatsApp(orderPayload);
+          console.log('✅ Pesanan berhasil dibuat dengan ID:', createdOrder?.id);
 
           if (createdOrder) {
             // Hapus draft karena pesanan telah sukses
