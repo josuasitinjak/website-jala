@@ -59,6 +59,69 @@ client.on('ready', () => {
   console.log('🚀 AI Customer Service JALA Siap Melayani!');
 });
 
+// Helper to format AI responses perfectly for WhatsApp (no broken tables, correct single-asterisk bold, clean emojis)
+function formatForWhatsApp(text) {
+  if (!text) return '';
+  let formatted = text;
+
+  // 1. Convert Markdown tables (| ... |) into beautiful WhatsApp list cards
+  if (formatted.includes('|')) {
+    const lines = formatted.split('\n');
+    let inTable = false;
+    let headers = [];
+    let convertedLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('|') && line.endsWith('|')) {
+        // Table separator row like |---|---|
+        if (line.match(/^\|[\s\-:|]+\|$/)) {
+          inTable = true;
+          continue;
+        }
+        const cols = line.split('|').map(c => c.trim()).filter(c => c.length > 0);
+        if (!inTable) {
+          headers = cols;
+          inTable = true;
+          if (headers.length > 0) {
+            convertedLines.push(`📋 *${headers.join(' • ')}*`);
+          }
+        } else {
+          if (cols.length > 0) {
+            if (cols.length >= 2) {
+              convertedLines.push(`▫️ *${cols[0]}* : ${cols.slice(1).join(' — ')}`);
+            } else {
+              convertedLines.push(`▫️ ${cols[0]}`);
+            }
+          }
+        }
+      } else {
+        inTable = false;
+        headers = [];
+        convertedLines.push(lines[i]);
+      }
+    }
+    formatted = convertedLines.join('\n');
+  }
+
+  // 2. Convert markdown headers: ### Heading -> 📌 *Heading*
+  formatted = formatted.replace(/^#{1,4}\s+(.+)$/gm, '📌 *$1*');
+
+  // 3. Convert **bold** (double asterisk) to *bold* (single asterisk for WhatsApp bold)
+  formatted = formatted.replace(/\*\*(.*?)\*\*/g, '*$1*');
+
+  // 4. Convert markdown links [Label](URL) -> Label (URL)
+  formatted = formatted.replace(/\[(.*?)\]\((.*?)\)/g, '$1 ($2)');
+
+  // 5. Convert horizontal rules like --- or ___ to clean line break
+  formatted = formatted.replace(/^[\-_*]{3,}$/gm, '──────────────');
+
+  // 6. Clean up triple or more empty lines into double lines
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
+
+  return formatted.trim();
+}
+
 // Helper to track order directly from localhost Next.js API
 async function trackOrder(orderId) {
   const localApiUrl = 'http://localhost:3000/api/orders';
@@ -71,21 +134,23 @@ async function trackOrder(orderId) {
     const found = orders.find(o => o.id && o.id.toUpperCase() === cleanId);
     
     if (found) {
-      return `Halo Kak! Pesanan *${found.id}* atas nama *${found.customerName}* saat ini berstatus: *[ ${found.status} ]*.\n\nDetail:\n📍 Tujuan: ${found.address}\n💰 Total: Rp${found.total.toLocaleString('id-ID')}\n💳 Pembayaran: ${found.paymentMethod}\n\nTerima kasih sudah memesan di JALA!`;
+      return `✨ *STATUS PESANAN JALA* ✨\n\nHalo Kak! Pesanan *${found.id}* atas nama *${found.customerName}* saat ini:\n\n📌 Status: *[ ${found.status.toUpperCase()} ]*\n📍 Tujuan Antar: ${found.address}\n💰 Total Belanja: *Rp${found.total.toLocaleString('id-ID')}*\n💳 Pembayaran: *${found.paymentMethod}*\n\nTerima kasih sudah memesan di JALA! Pesanan Kakak segera kami proses dengan sepenuh hati. 🛵💨`;
     } else {
-      return `Maaf Kak, nomor resi pesanan *${cleanId}* tidak ditemukan di database kami. Silakan periksa kembali nomor resi Anda ya!`;
+      return `Maaf Kak, nomor resi pesanan *${cleanId}* belum ditemukan di sistem kami.\n\nSilakan pastikan kembali kode resi Kakak (contoh: *JALA-1001*) atau hubungi tim pengurus bila ada kendala ya! 😊`;
     }
   } catch (err) {
     console.error('Error tracking order from local API:', err);
-    return 'Aduh maaf Kak, website utama (localhost:3000) sedang tidak aktif atau tidak dapat dijangkau, sehingga bot belum bisa membaca data pesanan saat ini.';
+    return 'Aduh maaf Kak, website utama JALA (localhost:3000) sedang tidak aktif atau tidak dapat dijangkau, sehingga bot belum bisa membaca data pesanan saat ini.';
   }
 }
 
 // Helper: safely send a reply, fallback to chat.sendMessage if reply fails (handles @lid safely)
 async function safeSend(msg, text) {
+  const formattedText = formatForWhatsApp(text);
+
   // 1. Coba reply biasa
   try {
-    await msg.reply(text);
+    await msg.reply(formattedText);
     console.log('✅ Balasan terkirim via msg.reply()');
     return;
   } catch (replyErr) {
@@ -95,7 +160,7 @@ async function safeSend(msg, text) {
   // 2. Coba via chat instance langsung (sangat handal untuk WhatsApp format baru @lid)
   try {
     const chat = await msg.getChat();
-    await chat.sendMessage(text);
+    await chat.sendMessage(formattedText);
     console.log('✅ Balasan terkirim via chat.sendMessage()');
     return;
   } catch (chatErr) {
@@ -104,7 +169,7 @@ async function safeSend(msg, text) {
 
   // 3. Fallback terakhir: kirim ke sender ID
   try {
-    await client.sendMessage(msg.from, text);
+    await client.sendMessage(msg.from, formattedText);
     console.log('✅ Balasan terkirim via client.sendMessage() ke:', msg.from);
   } catch (sendErr) {
     console.error('❌ Seluruh metode pengiriman pesan gagal:', sendErr.message);
@@ -140,64 +205,91 @@ async function handleIncomingMessage(msg) {
     return;
   }
   
-  // 2. Default: AI response for inquiries
+  // 2. Default: AI response with rich WhatsApp formatting
   try {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
           role: 'system',
-          content: `Kamu adalah AI Customer Service resmi dari "JALA" — brand Contemporary Malay Heritage Culinary (projek PKWU siswa SMAN 1 Batam, Kelas X / Hang Lekir 9).
+          content: `Kamu adalah AI Customer Service resmi dari "JALA" — brand Contemporary Malay Heritage Culinary (projek PKWU siswa SMAN 1 Batam, Kelas X Hang Lekir 9).
 Tagline: "Warisan Melayu Kepri, Sentuhan Modern Praktis"
+
+ATURAN FORMAT TAMPILAN WHATSAPP (SANGAT KRUSIAL):
+1. JANGAN PERNAH membuat tabel Markdown (| kolom 1 | kolom 2 |) atau garis horizontal (---)! Di WhatsApp HP tabel TIDAK BISA dibaca dan tampak hancur dengan garis-garis pipa (|).
+2. Gunakan HANYA format teks WhatsApp native yang bersih, rapi, dan mudah dibaca:
+   - Gunakan SATU bintang (*tebal*) untuk bold judul & poin penting. JANGAN gunakan dua bintang (**).
+   - Gunakan bullet point emoji yang estetik dan ramah (🍛, 🥤, 📦, 💰, ✨, 📍, 👉, 🛵).
+   - Berikan spasi satu baris kosong antar menu agar tampilan chat lega dan tidak menumpuk padat.
+3. SELALU buat jawaban INTERAKTIF & MENARIK:
+   - Sambut dengan hangat, sopan, dan santun khas Melayu (panggil pelanggan "Kak" atau "Kakak").
+   - Akhiri jawaban dengan pertanyaan interaktif atau opsi tindakan, contoh:
+     "Kira-kira Kakak mau coba rasa gurih kari atau yang creamy keju nih? 😊
+     Mau langsung pesan lewat website kami di http://localhost:3000?"
+   - Jika pelanggan baru menyapa ("halo", "hai", "p"), tawarkan menu panduan cepat:
+     1️⃣ Ketik *MENU* untuk daftar menu & paket hemat
+     2️⃣ Ketik *PROMO* untuk voucher diskon aktif
+     3️⃣ Ketik *LACAK (No Resi)* untuk cek status pesanan
 
 LINI PRODUK & HARGA RESMI JALA:
 
-1. Menu Satuan:
-a. Roti Kirai Berinti — Kari Kentang (Rp12.000 / porsi 4 buah)
-   - Isian kentang dadu bumbu kari Melayu meresap, dibungkus jala kunyit lembut. Kering, harum, gurih klasik.
-b. Roti Kirai Berinti — Ayam Suwir (Rp12.000 / porsi 4 buah)
-   - Suwiran daging ayam berbumbu rempah gurih manis yang dimasak kering, padat, dan mengenyangkan.
-c. Roti Kirai Berinti — Keju (Rp12.000 / porsi 4 buah)
-   - Keju leleh gurih dan creamy yang lumer di mulut. Camilan modern favorit.
-d. Es Telang Lemonade (Rp5.000 / cup)
-   - Air rebusan bunga telang biru alami dipadu es & perasan jeruk lemon segar yang berubah warna menjadi keunguan alami. Penyeimbang rasa gurih.
+1. Menu Satuan (Roti Kirai Berinti):
+🍛 *Roti Kirai Berinti — Kari Kentang*
+💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
+✨ *Cita Rasa:* Kentang dadu bumbu rempah kari Melayu harum & gurih klasik dalam gulungan jala kunyit lembut.
 
-2. Paket Bundling (Lebih Hemat):
-a. Paket Hemat (Rp10.000)
-   - Isi: 3 buah Roti Kirai Berinti. Pas untuk ganjal lapar praktis.
-b. Paket Lengkap (Rp15.000 — Harga normal Rp17.000, hemat Rp2.000)
-   - Isi: 1 porsi Roti Kirai (4 buah) + 1 cup Es Telang Lemonade.
-c. Paket Berdua (Rp30.000 — Harga normal Rp34.000, hemat Rp4.000)
-   - Isi: 2 porsi makanan (8 buah Roti Kirai) + 2 cup Es Telang Lemonade.
-d. Paket Puas (Rp42.000 — Harga normal Rp46.000, hemat Rp4.000)
-   - Isi: 3 porsi makanan (12 buah Roti Kirai) + 2 cup Es Telang Lemonade. Cocok untuk makan bareng!
+🍛 *Roti Kirai Berinti — Ayam Suwir*
+💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
+✨ *Cita Rasa:* Daging ayam suwir bumbu gurih manis meresap, padat, dan mengenyangkan.
 
-STRUKTUR TIM MANAJEMEN (4 ORANG):
+🍛 *Roti Kirai Berinti — Keju*
+💰 *Harga:* Rp12.000 / porsi (isi 4 buah)
+✨ *Cita Rasa:* Keju leleh gurih dan creamy lumer di mulut. Favorit kekinian!
+
+2. Minuman Segar:
+🥤 *Es Telang Lemonade*
+💰 *Harga:* Rp5.000 / cup
+✨ *Cita Rasa:* Rebusan bunga telang biru alami dipadu perasan lemon segar & es batu. Asam manis segar penyeimbang gurih!
+
+3. Paket Bundling (Pilihan Paling Hemat):
+📦 *Paket Hemat* (Rp10.000)
+👉 Isi: 3 buah Roti Kirai Berinti pilihanmu. Praktis untuk ganjal lapar!
+
+📦 *Paket Lengkap* (Rp15.000 — Hemat Rp2.000)
+👉 Isi: 1 porsi Roti Kirai (4 buah) + 1 cup Es Telang Lemonade. Paling favorit!
+
+📦 *Paket Berdua* (Rp30.000 — Hemat Rp4.000)
+👉 Isi: 2 porsi makanan (8 buah Roti Kirai) + 2 cup Es Telang Lemonade.
+
+📦 *Paket Puas* (Rp42.000 — Hemat Rp4.000)
+👉 Isi: 3 porsi makanan (12 buah Roti Kirai) + 2 cup Es Telang Lemonade. Cocok buat nongkrong rame-rame!
+
+KODE PROMO / VOUCHER AKTIF DI WEB:
+🎁 *JALABATAM* : Potongan Rp3.000 (Min. belanja Rp20.000)
+🎁 *SMANSAHEMAT* : Diskon 10% (Min. belanja Rp25.000)
+
+STRUKTUR PENGURUS TIM JALA (SMAN 1 BATAM):
 1. Josua Sitinjak — Chief Executive Officer (CEO) — Technology, Finance & Strategy
 2. Gabriel — Chief Operating & Commercial Officer (COO)
 3. Haura — Chief Product & Creative Officer (CPCO)
 4. Letty — Chief Marketing & Customer Officer (CMCO)
 
-NADA & GAYA KOMUNIKASI:
-- Ramah, antusias, santun, menghargai nilai budaya lokal Melayu Kepri. Selalu panggil pelanggan dengan "Kak" (misal "Halo Kak! 👋"). Gunakan emoji secukupnya.
-- Arahkan pemesanan via website resmi: http://localhost:3000
-- Jika menanyakan resi, minta mengetikkan kode resi (contoh: JALA-1001).
-
-BATASAN KEAMANAN INFORMASI:
-- JANGAN sentuh atau berspekulasi mengenai hal-hal yang belum ditentukan secara resmi (seperti detail perhitungan HPP atau modal internal). Jawab dengan sopan bahwa data tersebut bersifat internal tim manajemen.`
+KEAMANAN:
+- Data HPP modal internal bersifat rahasia manajemen. Jawab dengan sopan bahwa data tersebut bersifat internal tim.`
         },
         { role: 'user', content: text }
       ],
       model: 'openai/gpt-oss-20b',
       temperature: 0.6,
-      max_tokens: 300,
+      max_tokens: 380,
     });
     
-    const aiResponse = chatCompletion.choices[0]?.message?.content || 'Maaf Kak, sistem AI kami sedang tidak merespon. Boleh diulang pertanyaannya?';
-    console.log(`🤖 AI Response: "${aiResponse.slice(0, 60)}..."`);
+    const rawAiResponse = chatCompletion.choices[0]?.message?.content || 'Halo Kak! Ada yang bisa kami bantu seputar menu lezat JALA hari ini? 😊';
+    const aiResponse = formatForWhatsApp(rawAiResponse);
+    console.log(`🤖 AI Response: "${aiResponse.slice(0, 70)}..."`);
     await safeSend(msg, aiResponse);
   } catch (error) {
     console.error('❌ Groq AI API Error:', error.message);
-    await safeSend(msg, 'Duh, mohon maaf Kak, jaringan AI kami sedang kurang stabil. Mohon hubungi admin kami secara manual atau coba lagi nanti ya!');
+    await safeSend(msg, 'Duh, mohon maaf Kak, jaringan asisten AI kami sedang kurang stabil. Mohon hubungi admin kami secara manual atau coba kembali beberapa saat lagi ya! 🙏');
   }
 }
 
