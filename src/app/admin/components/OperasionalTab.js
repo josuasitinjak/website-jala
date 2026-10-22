@@ -325,7 +325,16 @@ export default function OperasionalTab({
                     filteredOrders.map(order => (
                       <tr key={order.id} className="hover:bg-gray-50/70 transition">
                         <td className="p-4 font-mono">
-                          <span className="font-bold text-gray-900 block">{order.id}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-gray-900">{order.id}</span>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded font-sans font-bold ${
+                              order.orderSource === 'WhatsApp' 
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                                : 'bg-gray-100 text-gray-600 border border-gray-200'
+                            }`}>
+                              {order.orderSource === 'WhatsApp' ? '💬 WA' : '🌐 Web'}
+                            </span>
+                          </div>
                           <span className="text-[10px] text-gray-400">
                             {order.time ? new Date(order.time).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : "-"}
                           </span>

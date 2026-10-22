@@ -122,25 +122,41 @@ function formatForWhatsApp(text) {
   return formatted.trim();
 }
 
-// Helper to track order directly from localhost Next.js API
+const API_BASE_URL = process.env.LIVE_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+// Helper to track order directly from local/live Next.js API
 async function trackOrder(orderId) {
-  const localApiUrl = 'http://localhost:3000/api/orders';
-  
   try {
-    const res = await fetch(localApiUrl);
+    const res = await fetch(`${API_BASE_URL}/api/orders`);
     const data = await res.json();
     const orders = data && Array.isArray(data.orders) ? data.orders : [];
     const cleanId = orderId.trim().toUpperCase();
     const found = orders.find(o => o.id && o.id.toUpperCase() === cleanId);
     
     if (found) {
-      return `✨ *STATUS PESANAN JALA* ✨\n\nHalo Kak! Pesanan *${found.id}* atas nama *${found.customerName}* saat ini:\n\n📌 Status: *[ ${found.status.toUpperCase()} ]*\n📍 Tujuan Antar: ${found.address}\n💰 Total Belanja: *Rp${found.total.toLocaleString('id-ID')}*\n💳 Pembayaran: *${found.paymentMethod}*\n\nTerima kasih sudah memesan di JALA! Pesanan Kakak segera kami proses dengan sepenuh hati. 🛵💨`;
+      return `✨ *STATUS PESANAN JALA* ✨\n\nHalo Kak! Pesanan *${found.id}* atas nama *${found.customerName}* saat ini:\n\n📌 *Status:* *[ ${found.status.toUpperCase()} ]*\n📍 *Tujuan Antar:* ${found.address}\n💰 *Total Belanja:* *Rp${found.total.toLocaleString('id-ID')}*\n💳 *Pembayaran:* *${found.paymentMethod}* (${found.paymentStatus || 'Tercatat'})\n🛵 *Sumber Pesanan:* ${found.orderSource === 'WhatsApp' ? 'WhatsApp Langsung' : 'Website JALA'}\n\nTerima kasih sudah memesan di JALA! Pesanan Kakak segera kami proses dengan sepenuh hati. 🛵💨`;
     } else {
       return `Maaf Kak, nomor resi pesanan *${cleanId}* belum ditemukan di sistem kami.\n\nSilakan pastikan kembali kode resi Kakak (contoh: *JALA-1001*) atau hubungi tim pengurus bila ada kendala ya! 😊`;
     }
   } catch (err) {
-    console.error('Error tracking order from local API:', err);
-    return 'Aduh maaf Kak, website utama JALA (localhost:3000) sedang tidak aktif atau tidak dapat dijangkau, sehingga bot belum bisa membaca data pesanan saat ini.';
+    console.error('Error tracking order from API:', err);
+    return 'Aduh maaf Kak, website utama JALA sedang tidak aktif atau tidak dapat dijangkau, sehingga bot belum bisa membaca data pesanan saat ini.';
+  }
+}
+
+// Helper to create order directly into Next.js database from WhatsApp
+async function createOrderFromWhatsApp(orderData) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+    const data = await res.json();
+    return data.success ? data.order : null;
+  } catch (err) {
+    console.error('Error creating order via API:', err);
+    return null;
   }
 }
 
@@ -204,8 +220,98 @@ async function handleIncomingMessage(msg) {
     await safeSend(msg, trackingResult);
     return;
   }
+
+  // 2. Format Pemesanan Cepat
+  const formatRegex = /^(FORMAT|CARA PESAN|FORMAT PESAN|FORMAT ORDER|CARA ORDER)/i;
+  if (formatRegex.test(text)) {
+    const formatGuide = `📋 *FORMAT CEPAT PEMESANAN VIA WHATSAPP JALA* 📋\n\nKakak bisa salin & lengkapi format di bawah ini ya:\n\n*PESAN JALA*\n👤 *Nama:* [Nama Lengkap Kakak]\n📍 *Lokasi/Kelas:* [Contoh: Ruang Guru / Kelas X MIPA 1]\n🍛 *Pesanan:* [Contoh: 2 Paket Lengkap, 1 Roti Keju]\n💳 *Metode Bayar:* [COD / QRIS]\n\n_Kirimkan ke chat ini, dan pesanan Kakak akan langsung otomatis masuk ke sistem dapur & Admin Dashboard JALA! ✨_`;
+    await safeSend(msg, formatGuide);
+    return;
+  }
   
-  // 2. Default: AI response with rich WhatsApp formatting
+  // 3. Deteksi Niat Pemesanan (Pintu WhatsApp Langsung)
+  const orderKeywords = /(pesan|order|beli|mau beli|mau pesan|pesan jala)/i;
+  const isPotentialOrder = orderKeywords.test(text);
+
+  if (isPotentialOrder) {
+    try {
+      console.log(`🛒 Memproses analisis pesanan otomatis via WhatsApp...`);
+      const parseCompletion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: `Kamu adalah asisten kasir pintar JALA. Tugasmu menganalisis apakah pesan pelanggan berisi niat memesan makanan JALA dan mengekstrak rinciannya.
+Katalog Resmi & Harga:
+- Roti Kirai Berinti — Kari Kentang (Rp12000)
+- Roti Kirai Berinti — Ayam Suwir (Rp12000)
+- Roti Kirai Berinti — Keju (Rp12000)
+- Es Telang Lemonade (Rp5000)
+- Paket Hemat (Rp10000)
+- Paket Lengkap (Rp15000)
+- Paket Berdua (Rp30000)
+- Paket Puas (Rp42000)
+
+Aturan:
+1. Jika pelanggan menyebutkan item pesanan dan nama/alamat (lokasi antar), buat "isOrder": true.
+2. Hitung total harga dengan tepat.
+3. Jika info belum lengkap (misal: belum ada nama, alamat kelas/ruang pengantaran, atau item spesifik), set "isComplete": false dan berikan "replyMessage" yang menanyakan kelengkapannya dengan ramah.
+4. Output HANYA JSON Object valid tanpa markdown:
+{
+  "isOrder": boolean,
+  "isComplete": boolean,
+  "customerName": string atau null,
+  "address": string atau null,
+  "paymentMethod": "COD" atau "QRIS",
+  "items": [{"name": string resmi, "quantity": number, "price": number}],
+  "total": number,
+  "replyMessage": string ramah khas Melayu
+}`
+          },
+          { role: 'user', content: text }
+        ],
+        model: 'openai/gpt-oss-20b',
+        response_format: { type: 'json_object' }
+      });
+
+      const parsed = JSON.parse(parseCompletion.choices[0]?.message?.content || '{}');
+
+      if (parsed.isOrder && parsed.isComplete && parsed.items && parsed.items.length > 0) {
+        // Pemesanan Lengkap -> Kirim langsung ke API Backend
+        const orderPayload = {
+          customerName: parsed.customerName || 'Pelanggan WhatsApp',
+          address: parsed.address || 'SMAN 1 Batam',
+          items: parsed.items,
+          total: parsed.total || parsed.items.reduce((sum, i) => sum + (i.price * i.quantity), 0),
+          paymentMethod: parsed.paymentMethod || 'COD',
+          paymentStatus: parsed.paymentMethod === 'QRIS' ? 'Menunggu QRIS' : 'Bayar di Tempat (COD)',
+          orderSource: 'WhatsApp'
+        };
+
+        const createdOrder = await createOrderFromWhatsApp(orderPayload);
+
+        if (createdOrder) {
+          const itemLines = createdOrder.items.map(i => `▫️ *${i.quantity}x ${i.name}* — Rp${(i.quantity * i.price).toLocaleString('id-ID')}`).join('\n');
+
+          let receipt = `🎉 *PESANAN JALA RESMI BERHASIL DIBUAT!* 🎉\n\nHalo Kak *${createdOrder.customerName}*! Pesanan Kakak telah resmi tercatat di sistem dapur JALA:\n\n🔖 *Nomor Resi / ID Pesanan:*\n👉 *${createdOrder.id}*\n\n📋 *Rincian Menu:*\n${itemLines}\n────────────────────────\n💰 *Total Tagihan:* *Rp${createdOrder.total.toLocaleString('id-ID')}*\n💳 *Metode Pembayaran:* *${createdOrder.paymentMethod}*\n📍 *Lokasi Pengantaran:* ${createdOrder.address}\n\n🛵 *Status:* Pesanan Diterima Dapur\n\nKakak bisa cek status pesanan kapan saja langsung di WhatsApp ini dengan mengetik:\n👉 *LACAK ${createdOrder.id}*\n\n_(Data pesanan ini sudah otomatis tersinkronisasi 2 arah ke Admin Dashboard & Website JALA)_ ✨`;
+
+          if (createdOrder.paymentMethod === 'QRIS') {
+            receipt += `\n\n📱 *Pembayaran QRIS:*\nSilakan transfer sesuai nominal *Rp${createdOrder.total.toLocaleString('id-ID')}* ke QRIS resmi JALA di website atau hubungi kasir kami ya Kak!`;
+          }
+
+          await safeSend(msg, receipt);
+          return;
+        }
+      } else if (parsed.isOrder && !parsed.isComplete) {
+        // Pesanan terdeteksi tapi belum lengkap -> minta info yang kurang
+        await safeSend(msg, parsed.replyMessage || "Wah siap Kak! Mau tolong dilengkapi Nama Pemesan, Lokasi Pengantaran (Kelas/Ruangan), dan Metode Bayar (COD/QRIS) agar langsung kami proses ya! 😊");
+        return;
+      }
+    } catch (parseErr) {
+      console.warn('Order parser fallback to regular chat:', parseErr.message);
+    }
+  }
+  
+  // 4. Default: AI Customer Service response with rich WhatsApp formatting
   try {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
@@ -213,6 +319,15 @@ async function handleIncomingMessage(msg) {
           role: 'system',
           content: `Kamu adalah AI Customer Service resmi dari "JALA" — brand Contemporary Malay Heritage Culinary (projek PKWU siswa SMAN 1 Batam, Kelas X Hang Lekir 9).
 Tagline: "Warisan Melayu Kepri, Sentuhan Modern Praktis"
+
+SISTEM PEMESANAN DUA PINTU:
+1. Pelanggan bisa memesan lewat WEBSITE (http://localhost:3000) ATAU langsung lewat CHAT WHATSAPP ini!
+2. Jika pelanggan ingin memesan lewat WhatsApp, mereka cukup sebutkan:
+   - Nama
+   - Lokasi / Kelas di SMAN 1 Batam
+   - Menu yang dipesan
+   - Metode Bayar (COD atau QRIS)
+   Atau ketik *FORMAT* untuk template praktis!
 
 ATURAN FORMAT TAMPILAN WHATSAPP (SANGAT KRUSIAL):
 1. JANGAN PERNAH membuat tabel Markdown (| kolom 1 | kolom 2 |) atau garis horizontal (---)! Di WhatsApp HP tabel TIDAK BISA dibaca dan tampak hancur dengan garis-garis pipa (|).
@@ -224,11 +339,12 @@ ATURAN FORMAT TAMPILAN WHATSAPP (SANGAT KRUSIAL):
    - Sambut dengan hangat, sopan, dan santun khas Melayu (panggil pelanggan "Kak" atau "Kakak").
    - Akhiri jawaban dengan pertanyaan interaktif atau opsi tindakan, contoh:
      "Kira-kira Kakak mau coba rasa gurih kari atau yang creamy keju nih? 😊
-     Mau langsung pesan lewat website kami di http://localhost:3000?"
+     Bisa langsung pesan di chat ini atau lewat website kami di http://localhost:3000 ya!"
    - Jika pelanggan baru menyapa ("halo", "hai", "p"), tawarkan menu panduan cepat:
      1️⃣ Ketik *MENU* untuk daftar menu & paket hemat
-     2️⃣ Ketik *PROMO* untuk voucher diskon aktif
-     3️⃣ Ketik *LACAK (No Resi)* untuk cek status pesanan
+     2️⃣ Ketik *PESAN* untuk panduan pesan via WhatsApp
+     3️⃣ Ketik *PROMO* untuk voucher diskon aktif
+     4️⃣ Ketik *LACAK (No Resi)* untuk cek status pesanan
 
 LINI PRODUK & HARGA RESMI JALA:
 
