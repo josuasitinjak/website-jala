@@ -49,7 +49,7 @@ export default function AdminPage() {
     if (validUsers.includes(username.toLowerCase()) && validPass.includes(password)) {
       setIsLoggedIn(true);
     } else {
-      alert("Username atau Password salah. (Gunakan: adminjala / adminjala2026)");
+      alert("Username atau Password salah. Silakan hubungi administrator JALA.");
     }
   };
 
@@ -112,9 +112,7 @@ export default function AdminPage() {
               </button>
             </div>
 
-            <p className="text-[11px] text-gray-400 text-center pt-2">
-              Default akses: <strong className="text-gray-600">adminjala</strong> / <strong className="text-gray-600">adminjala2026</strong>
-            </p>
+
           </form>
         </div>
       </div>
@@ -155,6 +153,14 @@ function AdminApp({ onLogout }) {
   // LocalStorage Persistence on Load
   useEffect(() => {
     try {
+      // Schema version check: auto-clear stale demo data from old versions
+      const schemaVersion = localStorage.getItem("jala_schema_version");
+      if (schemaVersion !== "v2") {
+        // Clear old demo data keys and reset to clean state
+        ["jala_transactions", "jala_customers", "jala_vouchers"].forEach(k => localStorage.removeItem(k));
+        localStorage.setItem("jala_schema_version", "v2");
+      }
+
       const savedProducts = localStorage.getItem("jala_products");
       if (savedProducts) setProducts(JSON.parse(savedProducts));
 

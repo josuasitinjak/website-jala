@@ -10,10 +10,6 @@ export default function TimTab({
   onEditMember
 }) {
   const handleDeleteMember = (id, name) => {
-    if (id === "TEAM-01") {
-      alert("Profil CEO (Josua Sitinjak) tidak dapat dihapus dari sistem.");
-      return;
-    }
     if (confirm(`Yakin ingin menghapus ${name} dari daftar staf dan hak akses gerai?`)) {
       setTeam(prev => prev.filter(m => m.id !== id));
     }

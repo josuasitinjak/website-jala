@@ -104,29 +104,13 @@ export const initialInventory = [
   { id: 'INV-10', name: 'Minyak Goreng SunCo 2L', category: 'Operasional', stock: 2, unit: 'Pouch', minStock: 1, costPerUnit: 36000, supplier: 'Supermarket Top100', status: 'Aman' }
 ];
 
-export const initialTransactions = [
-  { id: 'TRX-001', date: '2026-10-14', type: 'Pemasukan', category: 'Penjualan Menu', amount: 145000, note: 'Penjualan sesi istirahat pertama', paymentMethod: 'QRIS' },
-  { id: 'TRX-002', date: '2026-10-14', type: 'Pengeluaran', category: 'Belanja Bahan Baku', amount: 85000, note: 'Beli ayam fillet & kentang tambahan', paymentMethod: 'Tunai' },
-  { id: 'TRX-003', date: '2026-10-14', type: 'Pemasukan', category: 'Penjualan Menu', amount: 98000, note: 'Pesanan antar ruang guru', paymentMethod: 'COD / Tunai' },
-  { id: 'TRX-004', date: '2026-10-13', type: 'Pengeluaran', category: 'Kemasan & Packaging', amount: 60000, note: 'Restock 50 pcs box kraft JALA', paymentMethod: 'Transfer' },
-  { id: 'TRX-005', date: '2026-10-13', type: 'Pemasukan', category: 'Penjualan Menu', amount: 210000, note: 'Penjualan bazaar mini sekolah', paymentMethod: 'QRIS' },
-  { id: 'TRX-006', date: '2026-10-12', type: 'Pengeluaran', category: 'Bahan Baku', amount: 120000, note: 'Belanja mingguan tepung, telur, rempah kari', paymentMethod: 'Tunai' },
-  { id: 'TRX-007', date: '2026-10-12', type: 'Pengeluaran', category: 'Operasional & Gas', amount: 24000, note: 'Refill gas elpiji 3kg dapur produksi', paymentMethod: 'Tunai' },
-  { id: 'TRX-008', date: '2026-10-12', type: 'Pemasukan', category: 'Penjualan Menu', amount: 185000, note: 'Pre-order Paket Berdua & Lengkap', paymentMethod: 'QRIS' }
-];
+export const initialTransactions = [];
 
-export const initialCustomers = [
-  { id: 'CUST-01', name: 'Rafi Ramadhan', phone: '081234567890', classLocation: 'Kelas X - Hang Lekir 9', totalOrders: 4, totalSpent: 72000, lastOrder: '2026-10-14', tier: 'VIP Pelanggan' },
-  { id: 'CUST-02', name: 'Bu Siti Rahayu, S.Pd', phone: '082198765432', classLocation: 'Ruang Guru Lantai 2', totalOrders: 5, totalSpent: 125000, lastOrder: '2026-10-14', tier: 'VIP Pelanggan' },
-  { id: 'CUST-03', name: 'Daffa Pratama', phone: '085278901234', classLocation: 'Kelas XI - IPA 3', totalOrders: 2, totalSpent: 30000, lastOrder: '2026-10-13', tier: 'Regular' },
-  { id: 'CUST-04', name: 'Aisyah Putri', phone: '081345678912', classLocation: 'Kelas X - Hang Tuah 4', totalOrders: 1, totalSpent: 15000, lastOrder: '2026-10-14', tier: 'Pelanggan Baru' },
-  { id: 'CUST-05', name: 'Pak Hendra Kurniawan', phone: '081123456789', classLocation: 'Ruang Tata Usaha', totalOrders: 3, totalSpent: 90000, lastOrder: '2026-10-12', tier: 'Regular' }
-];
+export const initialCustomers = [];
 
 export const initialVouchers = [
-  { id: 'VOUCH-01', code: 'JALAHEMAT2', discountType: 'Nominal', discountVal: 2000, minOrder: 15000, quota: 30, used: 12, validUntil: '2026-10-31', isActive: true, note: 'Potongan Rp2.000 untuk pembelian bundling' },
-  { id: 'VOUCH-02', code: 'JALAGURU10', discountType: 'Persen', discountVal: 10, minOrder: 25000, quota: 20, used: 8, validUntil: '2026-11-15', isActive: true, note: 'Khusus bapak/ibu guru & staf TU SMAN 1 Batam' },
-  { id: 'VOUCH-03', code: 'JALABERDUA5K', discountType: 'Nominal', discountVal: 5000, minOrder: 30000, quota: 15, used: 11, validUntil: '2026-10-25', isActive: true, note: 'Promo makan berdua bareng bestie' }
+  { id: 'VOUCH-01', code: 'JALABATAM', discountType: 'Nominal', discountVal: 3000, minOrder: 20000, quota: 100, used: 0, validUntil: '2026-12-31', isActive: true, note: 'Potongan Rp3.000 untuk pelanggan Batam' },
+  { id: 'VOUCH-02', code: 'SMANSAHEMAT', discountType: 'Persen', discountVal: 10, minOrder: 25000, quota: 100, used: 0, validUntil: '2026-12-31', isActive: true, note: 'Diskon 10% khusus warga SMAN 1 Batam' }
 ];
 
 export const initialTeam = [

@@ -251,11 +251,11 @@ export default function Sidebar({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-white text-xs shrink-0 shadow">
-                JS
+                AD
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-white truncate">Josua Sitinjak</p>
-                <p className="text-[10px] text-gray-400 truncate">Chief Executive Officer</p>
+                <p className="text-xs font-semibold text-white truncate">Admin JALA</p>
+                <p className="text-[10px] text-gray-400 truncate">Portal Manajemen</p>
               </div>
             </div>
             <button

@@ -388,67 +388,79 @@ export default function DashboardTab({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 text-xs">
-              {orders.slice(0, 5).map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50/60 transition">
-                  <td className="p-4 font-mono font-bold text-gray-900">
-                    <div className="flex items-center gap-1.5">
-                      <span>{order.id}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-sans font-bold ${
-                        order.orderSource === 'WhatsApp' 
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                          : 'bg-gray-100 text-gray-600 border border-gray-200'
-                      }`}>
-                        {order.orderSource === 'WhatsApp' ? '💬 WA' : '🌐 Web'}
-                      </span>
+              {orders.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="p-10 text-center">
+                    <div className="flex flex-col items-center gap-2 text-gray-400">
+                      <ShoppingBag size={28} className="text-gray-300" />
+                      <p className="font-semibold text-gray-500">Belum ada pesanan masuk</p>
+                      <p className="text-xs">Pesanan dari website atau WhatsApp akan muncul di sini secara real-time.</p>
                     </div>
-                    <div className="text-[10px] text-gray-400 font-sans font-normal mt-0.5">
-                      {order.time ? new Date(order.time).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : "-"}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <p className="font-semibold text-gray-900">{order.customerName}</p>
-                    <p className="text-[11px] text-gray-500 truncate max-w-xs">{order.address}</p>
-                    {order.paymentProof && (
-                      <button
-                        onClick={() => onViewProof(order.paymentProof)}
-                        className="text-[10px] text-red-600 hover:underline font-bold mt-0.5 inline-block"
-                      >
-                        Lihat Bukti QRIS
-                      </button>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <ul className="space-y-0.5">
-                      {order.items?.map((item, idx) => (
-                        <li key={idx} className="text-gray-700">
-                          {item.name} <span className="font-bold text-gray-900">x{item.quantity}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="p-4 font-bold text-red-600 font-mono">
-                    {formatRupiah(order.total || 0)}
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColors[order.status] || "bg-gray-100 text-gray-700"}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <select
-                      value={order.status}
-                      onChange={(e) => onUpdateOrderStatus(order.id, e.target.value)}
-                      className="bg-white border border-gray-200 text-gray-700 text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-red-500 focus:outline-none"
-                    >
-                      <option value="Pesanan Diterima">Pesanan Diterima</option>
-                      <option value="Sedang Diproses">Sedang Diproses</option>
-                      <option value="Sedang Diantar">Sedang Diantar</option>
-                      <option value="Selesai">Selesai</option>
-                      <option value="Dibatalkan">Dibatalkan</option>
-                    </select>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                orders.slice(0, 5).map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50/60 transition">
+                    <td className="p-4 font-mono font-bold text-gray-900">
+                      <div className="flex items-center gap-1.5">
+                        <span>{order.id}</span>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-sans font-bold ${
+                          order.orderSource === 'WhatsApp' 
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                            : 'bg-gray-100 text-gray-600 border border-gray-200'
+                        }`}>
+                          {order.orderSource === 'WhatsApp' ? '💬 WA' : '🌐 Web'}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-gray-400 font-sans font-normal mt-0.5">
+                        {order.time ? new Date(order.time).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : "-"}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <p className="font-semibold text-gray-900">{order.customerName}</p>
+                      <p className="text-[11px] text-gray-500 truncate max-w-xs">{order.address}</p>
+                      {order.paymentProof && (
+                        <button
+                          onClick={() => onViewProof(order.paymentProof)}
+                          className="text-[10px] text-red-600 hover:underline font-bold mt-0.5 inline-block"
+                        >
+                          Lihat Bukti QRIS
+                        </button>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <ul className="space-y-0.5">
+                        {order.items?.map((item, idx) => (
+                          <li key={idx} className="text-gray-700">
+                            {item.name} <span className="font-bold text-gray-900">x{item.quantity}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td className="p-4 font-bold text-red-600 font-mono">
+                      {formatRupiah(order.total || 0)}
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColors[order.status] || "bg-gray-100 text-gray-700"}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <select
+                        value={order.status}
+                        onChange={(e) => onUpdateOrderStatus(order.id, e.target.value)}
+                        className="bg-white border border-gray-200 text-gray-700 text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                      >
+                        <option value="Pesanan Diterima">Pesanan Diterima</option>
+                        <option value="Sedang Diproses">Sedang Diproses</option>
+                        <option value="Sedang Diantar">Sedang Diantar</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Dibatalkan">Dibatalkan</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
