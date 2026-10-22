@@ -1,0 +1,54 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'>
+  <!-- Background Pattern - Batik Kawung Authentic Design -->
+  <!-- Kawung consists of 4 intersecting ellipses representing palm fruit, plus a cross center. -->
+  <g fill="none">
+    
+    <!-- Cross/Rhombus Center (Pusat Kawung) -->
+    <path d="M60 45 L75 60 L60 75 L45 60 Z" fill="#ffffff" fill-opacity="1" stroke="#ffffff" stroke-width="1.5" stroke-opacity="1"/>
+    <path d="M0 105 L15 120 L0 135 L-15 120 Z" fill="#ffffff" fill-opacity="1" stroke="#ffffff" stroke-width="1.5" stroke-opacity="1"/>
+    <path d="M120 105 L135 120 L120 135 L105 120 Z" fill="#ffffff" fill-opacity="1" stroke="#ffffff" stroke-width="1.5" stroke-opacity="1"/>
+    <path d="M0 -15 L15 0 L0 15 L-15 0 Z" fill="#ffffff" fill-opacity="1" stroke="#ffffff" stroke-width="1.5" stroke-opacity="1"/>
+    <path d="M120 -15 L135 0 L120 15 L105 0 Z" fill="#ffffff" fill-opacity="1" stroke="#ffffff" stroke-width="1.5" stroke-opacity="1"/>
+
+    <!-- Ellipses representing the Kolang-Kaling fruits -->
+    <g fill="#ffffff" fill-opacity="0.5" stroke="#ffffff" stroke-width="1.5" stroke-opacity="1">
+      <!-- Center Cluster -->
+      <path d="M60 0 C75 15, 75 45, 60 60 C45 45, 45 15, 60 0 Z" />
+      <path d="M60 60 C75 75, 75 105, 60 120 C45 105, 45 75, 60 60 Z" />
+      <path d="M0 60 C15 75, 45 75, 60 60 C45 45, 15 45, 0 60 Z" />
+      <path d="M60 60 C75 75, 105 75, 120 60 C105 45, 75 45, 60 60 Z" />
+      
+      <!-- Top Left Cluster -->
+      <path d="M0 0 C15 15, 45 15, 60 0 C45 -15, 15 -15, 0 0 Z" />
+      <path d="M0 0 C15 15, 15 45, 0 60 C-15 45, -15 15, 0 0 Z" />
+
+      <!-- Top Right Cluster -->
+      <path d="M60 0 C75 15, 105 15, 120 0 C105 -15, 75 -15, 60 0 Z" />
+      <path d="M120 0 C105 15, 105 45, 120 60 C135 45, 135 15, 120 0 Z" />
+
+      <!-- Bottom Left Cluster -->
+      <path d="M0 120 C15 105, 45 105, 60 120 C45 135, 15 135, 0 120 Z" />
+      <path d="M0 60 C15 75, 15 105, 0 120 C-15 105, -15 75, 0 60 Z" />
+
+      <!-- Bottom Right Cluster -->
+      <path d="M60 120 C75 105, 105 105, 120 120 C105 135, 75 135, 60 120 Z" />
+      <path d="M120 60 C105 75, 105 105, 120 120 C135 105, 135 75, 120 60 Z" />
+    </g>
+
+    <!-- Dots in the center of the elements (Isen-Isen Cecek) -->
+    <circle cx="60" cy="30" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="60" cy="90" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="30" cy="60" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="90" cy="60" r="3" fill="#ffffff" fill-opacity="1"/>
+
+    <circle cx="30" cy="0" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="90" cy="0" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="30" cy="120" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="90" cy="120" r="3" fill="#ffffff" fill-opacity="1"/>
+    
+    <circle cx="0" cy="30" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="0" cy="90" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="120" cy="30" r="3" fill="#ffffff" fill-opacity="1"/>
+    <circle cx="120" cy="90" r="3" fill="#ffffff" fill-opacity="1"/>
+  </g>
+</svg>
