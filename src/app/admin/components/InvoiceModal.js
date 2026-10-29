@@ -37,7 +37,7 @@ export default function InvoiceModal({ order, onClose }) {
           <div className="text-center space-y-1 border-b border-dashed border-gray-300 pb-4">
             <h3 className="font-extrabold text-base tracking-tight font-sans text-gray-900">JALA</h3>
             <p className="text-[10px] text-gray-500 font-sans">Contemporary Malay Heritage Culinary</p>
-            <p className="text-[10px] text-gray-400 font-sans">Projek PKWU SMAN 1 Batam · Kelas X Hang Lekir 9</p>
+            <p className="text-[10px] text-gray-400 font-sans">Projek PKWU SMAN 1 Batam · Kelas XI Hang Jebat 5</p>
           </div>
 
           <div className="space-y-1 text-[11px] border-b border-dashed border-gray-300 pb-3">

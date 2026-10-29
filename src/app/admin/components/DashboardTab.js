@@ -241,14 +241,14 @@ export default function DashboardTab({
                     style={{ height: `${item.heightPercent}%` }}
                     className={`w-full rounded-t-lg transition-all duration-500 ${
                       item.isToday
-                        ? "bg-red-600"
+                        ? "bg-amber-500"
                         : item.sales > 0
-                        ? "bg-red-400"
+                        ? "bg-amber-300"
                         : "bg-gray-200"
                     }`}
                   ></div>
                 </div>
-                <span className={`text-xs font-semibold ${item.isToday ? "text-red-600 font-bold" : "text-gray-500"}`}>
+                <span className={`text-xs font-semibold ${item.isToday ? "text-amber-700 font-bold" : "text-gray-500"}`}>
                   {item.day}
                 </span>
               </div>
@@ -287,7 +287,7 @@ export default function DashboardTab({
                 </div>
                 <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
                   <div 
-                    className="bg-red-500 h-full rounded-full transition-all duration-500"
+                    className="bg-amber-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${Math.min(100, (soldAyam / KUOTA.ayamMax) * 100)}%` }}
                   ></div>
                 </div>
@@ -341,7 +341,7 @@ export default function DashboardTab({
         <div className="flex flex-wrap gap-2.5">
           <button
             onClick={onOpenQuickOrder}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+            className="px-4 py-2 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
           >
             <PlusCircle size={15} /> Input Pesanan Kasir
           </button>
@@ -369,7 +369,7 @@ export default function DashboardTab({
           </div>
           <button
             onClick={() => onNavigate("operasional", "pesanan")}
-            className="text-xs text-red-600 hover:text-red-700 font-semibold flex items-center gap-1 transition"
+            className="text-xs text-amber-700 hover:text-amber-800 font-bold flex items-center gap-1 transition"
           >
             Semua Pesanan <ChevronRight size={14} />
           </button>
@@ -422,7 +422,7 @@ export default function DashboardTab({
                       {order.paymentProof && (
                         <button
                           onClick={() => onViewProof(order.paymentProof)}
-                          className="text-[10px] text-red-600 hover:underline font-bold mt-0.5 inline-block"
+                          className="text-[10px] text-amber-700 hover:underline font-bold mt-0.5 inline-block"
                         >
                           Lihat Bukti QRIS
                         </button>
@@ -437,7 +437,7 @@ export default function DashboardTab({
                         ))}
                       </ul>
                     </td>
-                    <td className="p-4 font-bold text-red-600 font-mono">
+                    <td className="p-4 font-bold text-amber-700 font-mono">
                       {formatRupiah(order.total || 0)}
                     </td>
                     <td className="p-4">
@@ -449,7 +449,7 @@ export default function DashboardTab({
                       <select
                         value={order.status}
                         onChange={(e) => onUpdateOrderStatus(order.id, e.target.value)}
-                        className="bg-white border border-gray-200 text-gray-700 text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                        className="bg-white border border-gray-200 text-gray-700 text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-amber-500 focus:outline-none"
                       >
                         <option value="Pesanan Diterima">Pesanan Diterima</option>
                         <option value="Sedang Diproses">Sedang Diproses</option>

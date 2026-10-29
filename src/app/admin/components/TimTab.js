@@ -27,17 +27,17 @@ export default function TimTab({
       {/* Top Banner */}
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <span className="text-xs bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded font-bold uppercase">
+          <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-bold uppercase">
             STRUKTUR PENGURUS RESMI
           </span>
           <h3 className="text-xl font-bold text-gray-900 mt-2">Tim Manajemen & Pembagian Hak Akses</h3>
           <p className="text-xs text-gray-500 mt-0.5">
-            Projek PKWU Siswa Kelas X / Hang Lekir 9 SMAN 1 Batam
+            Projek PKWU Siswa Kelas XI / Hang Jebat 5 SMAN 1 Batam
           </p>
         </div>
         <button
           onClick={onOpenAddMember}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+          className="px-4 py-2 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-sm"
         >
           <Plus size={15} /> Tambah Anggota / Staf
         </button>
@@ -50,12 +50,12 @@ export default function TimTab({
             <div>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-xl ${member.avatarBg || "bg-red-600"} text-white flex items-center justify-center font-bold text-sm shadow-md`}>
+                  <div className={`w-12 h-12 rounded-xl ${member.avatarBg || "bg-amber-500"} text-white flex items-center justify-center font-bold text-sm shadow-md`}>
                     {member.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900 text-base">{member.name}</h4>
-                    <p className="text-xs text-red-600 font-semibold">{member.role}</p>
+                    <p className="text-xs text-amber-700 font-bold">{member.role}</p>
                   </div>
                 </div>
                 <span className="text-[10px] bg-gray-100 text-gray-700 font-mono font-bold px-2 py-1 rounded">
@@ -84,7 +84,7 @@ export default function TimTab({
                   <span className="px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-700">Update Pesanan</span>
                   <span className="px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-700">Lihat Laporan</span>
                   {member.accessLevel === "Super Admin" && (
-                    <span className="px-2 py-0.5 bg-red-50 border border-red-200 text-red-700 font-bold">Akses Penuh Finansial</span>
+                    <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-800 font-bold">Akses Penuh Finansial</span>
                   )}
                 </div>
               </div>

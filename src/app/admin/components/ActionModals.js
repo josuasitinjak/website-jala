@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Plus, ShoppingBag, DollarSign, Boxes, User, Ticket } from "lucide-react";
+import { X, Plus, ShoppingBag, DollarSign, Boxes, User, Ticket, Package } from "lucide-react";
 
 // Modal 1: Buat Pesanan Manual Kasir
 export function QuickOrderModal({ isOpen, onClose, products = [], onSubmitOrder }) {
@@ -35,7 +35,7 @@ export function QuickOrderModal({ isOpen, onClose, products = [], onSubmitOrder 
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4 border-b pb-3">
           <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
-            <ShoppingBag size={18} className="text-red-600" /> Input Pesanan Manual Kasir
+            <ShoppingBag size={18} className="text-amber-600" /> Input Pesanan Manual Kasir
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition">
             <X size={18} />
@@ -51,7 +51,7 @@ export function QuickOrderModal({ isOpen, onClose, products = [], onSubmitOrder 
               placeholder="Contoh: Bu Guru Maya / Siswa X-9"
               value={customerName}
               onChange={e => setCustomerName(e.target.value)}
-              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-red-500"
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-400"
             />
           </div>
 
@@ -59,7 +59,7 @@ export function QuickOrderModal({ isOpen, onClose, products = [], onSubmitOrder 
             <label className="block font-semibold text-gray-700 mb-1">Lokasi Antar / Meja</label>
             <input
               type="text"
-              placeholder="Contoh: Ruang Guru Lantai 2 / Kelas XI-IPA 1"
+              placeholder="Contoh: Ruang Guru Lantai 2 / Kelas XI Hang Jebat 5"
               value={address}
               onChange={e => setAddress(e.target.value)}
               className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-red-500"
@@ -167,7 +167,7 @@ export function QuickExpenseModal({ isOpen, onClose, onAddTransaction }) {
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4 border-b pb-3">
           <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
-            <DollarSign size={18} className="text-rose-600" /> Catat Kas Pengeluaran
+            <DollarSign size={18} className="text-amber-600" /> Catat Kas Pengeluaran
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition">
             <X size={18} />
@@ -421,7 +421,7 @@ export function AddCustomerModal({ isOpen, onClose, onAddCustomer }) {
             <input
               type="text"
               required
-              placeholder="Contoh: Kelas X - Hang Lekir 9 / Ruang Guru"
+              placeholder="Contoh: Kelas XI Hang Jebat 5 / Ruang Guru"
               value={location}
               onChange={e => setLocation(e.target.value)}
               className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none"
@@ -482,7 +482,7 @@ export function AddVoucherModal({ isOpen, onClose, onAddVoucher }) {
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4 border-b pb-3">
           <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
-            <Ticket size={18} className="text-red-600" /> Buat Kupon Diskon Baru
+            <Ticket size={18} className="text-amber-600" /> Buat Kupon Diskon Baru
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition">
             <X size={18} />
@@ -618,7 +618,7 @@ export function AddTeamMemberModal({ isOpen, onClose, onAddMember }) {
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4 border-b pb-3">
           <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
-            <User size={18} className="text-red-600" /> Tambah Anggota Tim / Staf
+            <User size={18} className="text-amber-600" /> Tambah Anggota Tim / Staf
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition">
             <X size={18} />
@@ -776,7 +776,7 @@ export function EditProductModal({ isOpen, onClose, product, onUpdateProduct }) 
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4 border-b pb-3">
           <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
-            <ShoppingBag size={18} className="text-red-600" /> Edit Menu: {product.name}
+            <ShoppingBag size={18} className="text-amber-600" /> Edit Menu: {product.name}
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition">
             <X size={18} />
@@ -891,13 +891,13 @@ export function CustomerDetailModal({ isOpen, onClose, customer, onUpdateCustome
       <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl p-6 border border-gray-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div className="flex justify-between items-start border-b pb-4 mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold text-base shadow-md">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-gray-950 flex items-center justify-center font-bold text-base shadow-md">
               {customer.name.slice(0, 2).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-gray-900 text-lg">{customer.name}</h3>
-                <span className="text-[10px] bg-red-50 text-red-700 font-bold px-2 py-0.5 rounded border border-red-200">
+                <span className="text-[10px] bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-200">
                   {customer.tier || "Pelanggan"}
                 </span>
               </div>
@@ -913,7 +913,7 @@ export function CustomerDetailModal({ isOpen, onClose, customer, onUpdateCustome
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
             <span className="text-[10px] text-gray-400 uppercase font-semibold">Total Belanja</span>
-            <p className="text-base font-bold text-red-600 font-mono mt-0.5">
+            <p className="text-base font-bold text-amber-700 font-mono mt-0.5">
               Rp{(customer.totalSpent || 0).toLocaleString("id-ID")}
             </p>
           </div>
@@ -938,7 +938,7 @@ export function CustomerDetailModal({ isOpen, onClose, customer, onUpdateCustome
           <div className="flex justify-end">
             <button
               onClick={handleSaveNote}
-              className="text-xs text-red-600 hover:text-red-700 font-semibold"
+              className="text-xs text-amber-700 hover:text-amber-800 font-semibold"
             >
               {isSavingNote ? "Tersimpan!" : "Simpan Catatan"}
             </button>
@@ -960,7 +960,7 @@ export function CustomerDetailModal({ isOpen, onClose, customer, onUpdateCustome
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold font-mono text-red-600 block">Rp{(ord.total || 0).toLocaleString("id-ID")}</span>
+                    <span className="font-bold font-mono text-amber-700 block">Rp{(ord.total || 0).toLocaleString("id-ID")}</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">{ord.status}</span>
                   </div>
                 </div>
@@ -987,6 +987,184 @@ export function CustomerDetailModal({ isOpen, onClose, customer, onUpdateCustome
             Chat WhatsApp
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+
+// Modal 9: Edit Inventaris Manual
+export function EditInventoryModal({ isOpen, onClose, item, onSave }) {
+  const [stock, setStock] = useState(item?.stock ?? "");
+  const [minStock, setMinStock] = useState(item?.minStock ?? "");
+  const [costPerUnit, setCostPerUnit] = useState(item?.costPerUnit ?? "");
+  const [supplier, setSupplier] = useState(item?.supplier ?? "");
+  const [name, setName] = useState(item?.name ?? "");
+  const [category, setCategory] = useState(item?.category ?? "Bahan Utama");
+
+  React.useEffect(() => {
+    if (item) {
+      setStock(item.stock ?? "");
+      setMinStock(item.minStock ?? "");
+      setCostPerUnit(item.costPerUnit ?? "");
+      setSupplier(item.supplier ?? "");
+      setName(item.name ?? "");
+      setCategory(item.category ?? "Bahan Utama");
+    }
+  }, [item]);
+
+  if (!isOpen || !item) return null;
+
+  const computeStatus = (s, min) => {
+    const sv = parseFloat(s);
+    const mv = parseFloat(min);
+    if (isNaN(sv) || isNaN(mv)) return item.status;
+    if (sv <= 0) return "Kritis";
+    if (sv < mv) return "Menipis";
+    return "Aman";
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const stockVal = parseFloat(stock);
+    const minVal = parseFloat(minStock);
+    const costVal = parseInt(costPerUnit);
+    onSave(item.id, {
+      name: name.trim(),
+      category,
+      stock: isNaN(stockVal) ? item.stock : stockVal,
+      minStock: isNaN(minVal) ? item.minStock : minVal,
+      costPerUnit: isNaN(costVal) ? item.costPerUnit : costVal,
+      supplier: supplier.trim() || item.supplier,
+      status: computeStatus(stockVal, minVal)
+    });
+    onClose();
+  };
+
+  const previewStatus = computeStatus(stock, minStock);
+  const statusColor =
+    previewStatus === "Aman"
+      ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+      : previewStatus === "Menipis"
+      ? "text-amber-700 bg-amber-50 border-amber-200"
+      : "text-rose-700 bg-rose-50 border-rose-200";
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 border border-gray-100">
+        <div className="flex justify-between items-center mb-4 border-b pb-3">
+          <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
+            <Package size={18} className="text-amber-600" />
+            Edit Inventaris
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between">
+          <div>
+            <span className="text-[10px] text-gray-400 font-mono uppercase">{item.id}</span>
+            <p className="text-xs font-bold text-gray-700 mt-0.5">{item.name}</p>
+          </div>
+          <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border ${statusColor}`}>
+            {previewStatus}
+          </span>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Nama Bahan / Item</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={e => setName(e.target.value)}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Kategori</label>
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+            >
+              <option value="Bahan Utama">Bahan Utama</option>
+              <option value="Bahan Isian">Bahan Isian</option>
+              <option value="Bumbu & Rempah">Bumbu &amp; Rempah</option>
+              <option value="Bahan Minuman">Bahan Minuman</option>
+              <option value="Kemasan">Kemasan</option>
+              <option value="Operasional">Operasional</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block font-semibold text-gray-700 mb-1">Stok Saat Ini ({item.unit})</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={stock}
+                onChange={e => setStock(e.target.value)}
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 font-bold text-gray-900"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-gray-700 mb-1">Batas Minimal ({item.unit})</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={minStock}
+                onChange={e => setMinStock(e.target.value)}
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Biaya per Satuan (Rp)</label>
+            <input
+              type="number"
+              min="0"
+              value={costPerUnit}
+              onChange={e => setCostPerUnit(e.target.value)}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Pemasok / Sumber</label>
+            <input
+              type="text"
+              value={supplier}
+              onChange={e => setSupplier(e.target.value)}
+              placeholder="Nama toko atau pasar"
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+            />
+          </div>
+
+          <div className="pt-3 border-t flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold text-gray-700"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-gray-950 rounded-xl font-bold shadow-sm"
+            >
+              Simpan Perubahan
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

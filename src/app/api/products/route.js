@@ -4,7 +4,7 @@ let localProducts = [
   {
     id: 'PROD-01',
     productId: 1,
-    name: 'Roti Kirai Berinti — Kari Kentang',
+    name: 'Roti Kirai Berinti Kari Kentang',
     category: 'Menu Satuan',
     price: 12000,
     hpp: 6500,
@@ -16,7 +16,7 @@ let localProducts = [
   {
     id: 'PROD-02',
     productId: 2,
-    name: 'Roti Kirai Berinti — Ayam Suwir',
+    name: 'Roti Kirai Berinti Ayam Suwir',
     category: 'Menu Satuan',
     price: 12000,
     hpp: 7200,
@@ -28,7 +28,7 @@ let localProducts = [
   {
     id: 'PROD-03',
     productId: 3,
-    name: 'Roti Kirai Berinti — Keju',
+    name: 'Roti Kirai Berinti Keju',
     category: 'Menu Satuan',
     price: 12000,
     hpp: 7000,

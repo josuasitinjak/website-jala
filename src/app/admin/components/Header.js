@@ -42,7 +42,7 @@ export default function Header({
 
           <div>
             <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
-              <span>Portal Admin JALA</span>
+              <span>Portal Admin <strong className="text-amber-600 font-bold">JALA</strong></span>
               {activeSubTitle && (
                 <>
                   <span>/</span>
@@ -61,15 +61,14 @@ export default function Header({
           {/* Store Open/Close Toggle */}
           <button
             onClick={() => setStoreOpen(!storeOpen)}
-            className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+            className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
               storeOpen
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                ? "bg-white text-gray-800 border-gray-200 hover:border-amber-400"
+                : "bg-white text-gray-400 border-gray-200 hover:border-gray-300"
             }`}
           >
-            <span className={`w-2 h-2 rounded-full ${storeOpen ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
-            <Store size={14} />
-            <span>Gerai: {storeOpen ? "BUKA" : "TUTUP"}</span>
+            <Store size={13} className={storeOpen ? "text-amber-500" : "text-gray-400"} />
+            <span>{storeOpen ? "Buka" : "Tutup"}</span>
           </button>
 
           {/* Date Badge */}
@@ -82,9 +81,9 @@ export default function Header({
             onClick={onRefresh}
             title="Perbarui Data"
             disabled={isLoading}
-            className="p-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition shadow-sm"
+            className="p-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-amber-50 hover:text-amber-700 transition shadow-sm"
           >
-            <RefreshCw size={16} className={isLoading ? "animate-spin text-red-600" : ""} />
+            <RefreshCw size={16} className={isLoading ? "animate-spin text-amber-500" : ""} />
           </button>
 
           {/* Visit Store Button */}
@@ -92,7 +91,7 @@ export default function Header({
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-md shadow-red-600/20"
+            className="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 px-3.5 py-2 rounded-xl text-xs font-black transition shadow-md shadow-amber-500/20"
           >
             <ExternalLink size={14} />
             <span className="hidden sm:inline">Lihat Web Toko</span>

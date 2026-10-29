@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lock, User, ArrowLeft, Loader2, RefreshCw } from "lucide-react";
+import { Lock, User, ArrowLeft, Loader2, RefreshCw, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 // Import Modular Components
 import Sidebar from "./components/Sidebar";
@@ -40,39 +40,51 @@ export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setLoginError("");
     const validUsers = ["adminjala", "admincapcipcup", "admin", "josua"];
     const validPass = ["adminjala2026", "admincapcipcup2026", "admin2026", "jala2026"];
 
-    if (validUsers.includes(username.toLowerCase()) && validPass.includes(password)) {
+    if (validUsers.includes(username.trim().toLowerCase()) && validPass.includes(password)) {
       setIsLoggedIn(true);
     } else {
-      alert("Username atau Password salah. Silakan hubungi administrator JALA.");
+      setLoginError("Username atau kata sandi tidak sesuai. Silakan periksa kembali.");
     }
   };
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-        <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md relative border border-gray-200">
-          <a href="/" className="absolute top-6 left-6 text-gray-400 hover:text-gray-600 flex items-center gap-2 text-xs font-semibold transition">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50/50 via-yellow-50/30 to-white p-6">
+        <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md relative border border-amber-200/80">
+          <a href="/" className="absolute top-6 left-6 text-gray-400 hover:text-amber-600 flex items-center gap-2 text-xs font-semibold transition">
             <ArrowLeft size={16} /> Ke Halaman Web
           </a>
 
           <div className="text-center mb-8 mt-6">
-            <img 
-              src="/images/assets/logo.jpeg" 
-              alt="Logo JALA" 
-              className="w-16 h-16 rounded-2xl object-cover mx-auto mb-3 border border-gray-200 shadow-md bg-white" 
-              style={{ width: '64px', height: '64px', objectFit: 'cover' }}
-            />
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Portal Manajemen JALA</h2>
-            <p className="text-gray-500 text-xs mt-1">Sistem Terpadu PKWU SMAN 1 Batam · Kelas X Hang Lekir 9</p>
+            <div className="w-16 h-16 p-1 rounded-2xl bg-gradient-to-br from-amber-200/60 via-amber-100/30 to-amber-50 border border-amber-200/80 shadow-md inline-block mx-auto mb-3">
+              <img 
+                src="/images/assets/logo.jpeg" 
+                alt="Logo JALA" 
+                className="w-full h-full rounded-xl object-cover" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Portal Manajemen <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">JALA</span></h2>
+            <p className="text-gray-500 text-xs mt-1">Sistem Terpadu PKWU SMAN 1 Batam · Kelas XI Hang Jebat 5</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
+            {loginError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Username</label>
               <div className="relative">
@@ -80,10 +92,11 @@ export default function AdminPage() {
                 <input 
                   type="text" 
                   required 
+                  autoComplete="username"
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder="adminjala"
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition text-sm text-gray-800"
+                  onChange={e => { setUsername(e.target.value); setLoginError(""); }}
+                  placeholder="Masukkan username Anda..."
+                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 focus:outline-none transition text-sm text-gray-800 placeholder-gray-400"
                 />
               </div>
             </div>
@@ -93,26 +106,33 @@ export default function AdminPage() {
               <div className="relative">
                 <Lock size={18} className="absolute top-3.5 left-4 text-gray-400" />
                 <input 
-                  type="password" 
+                  type={showPassword ? "text" : "password"} 
                   required 
+                  autoComplete="current-password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none transition text-sm text-gray-800"
+                  onChange={e => { setPassword(e.target.value); setLoginError(""); }}
+                  placeholder="Masukkan kata sandi..."
+                  className="w-full pl-11 pr-11 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-400 focus:border-amber-400 focus:outline-none transition text-sm text-gray-800 placeholder-gray-400"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-3.5 right-4 text-gray-400 hover:text-gray-600 transition"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
             <div className="pt-2">
               <button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-600/30 transition transform hover:-translate-y-0.5 text-sm"
+                className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition transform hover:-translate-y-0.5 text-sm"
               >
                 Masuk ke Dashboard
               </button>
             </div>
-
-
           </form>
         </div>
       </div>
@@ -339,7 +359,7 @@ function AdminApp({ onLogout }) {
     crm: "Pelanggan & CRM",
     pemasaran: "Pemasaran & Promosi",
     analitik: "Analitik & Laporan",
-    ai_assistant: "Konsultasi & Asisten Bisnis",
+    ai_assistant: "AI Bot & Dokumen Supabase",
     tim: "Tim & Hak Akses",
     pengaturan: "Pengaturan Gerai"
   };

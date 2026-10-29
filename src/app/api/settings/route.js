@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 // Server-side in-memory store with default fallback
 let localSettings = {
   storeOpen: true,
-  storeName: 'JALA — Contemporary Malay Heritage Culinary',
+  storeName: 'JALA Contemporary Malay Heritage Culinary',
   tagline: 'Warisan Melayu Kepri, Sentuhan Modern Praktis',
   schoolLocation: 'SMAN 1 Batam, Jl. Kolonel Soegiono, Batam Kota',
   deliveryCoverage: 'Seluruh Ruang Kelas, Lab, Ruang Guru & Area Sekolah SMAN 1 Batam',

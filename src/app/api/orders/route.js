@@ -81,7 +81,23 @@ export async function PATCH(req) {
     
     const order = localOrders.find(o => o.id === id);
     if (order) {
+      const oldStatus = order.status;
       order.status = status;
+      order.updatedAt = new Date().toISOString();
+
+      // Trigger notifikasi instan ke WhatsApp Bot (port 3005)
+      fetch('http://localhost:3005/notify-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order,
+          oldStatus,
+          newStatus: status
+        })
+      }).catch(() => {
+        // Abaikan jika bot sedang loading, polling bot akan menangkap perubahannya
+      });
+
       return NextResponse.json({ success: true, order });
     }
     

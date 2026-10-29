@@ -120,7 +120,7 @@ export default function KeuanganTab({
           onClick={() => setSubTab("pemasukan_pengeluaran")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
             subTab === "pemasukan_pengeluaran"
-              ? "bg-red-600 text-white shadow-sm"
+              ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm"
               : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
           }`}
         >
@@ -130,7 +130,7 @@ export default function KeuanganTab({
           onClick={() => setSubTab("arus_kas")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
             subTab === "arus_kas"
-              ? "bg-red-600 text-white shadow-sm"
+              ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm"
               : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
           }`}
         >
@@ -140,7 +140,7 @@ export default function KeuanganTab({
           onClick={() => setSubTab("laporan_keuangan")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
             subTab === "laporan_keuangan"
-              ? "bg-red-600 text-white shadow-sm"
+              ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm"
               : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
           }`}
         >
@@ -206,7 +206,7 @@ export default function KeuanganTab({
               </select>
               <button
                 onClick={onOpenQuickExpense}
-                className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-2 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-sm"
               >
                 <Plus size={15} /> Catat Transaksi Baru
               </button>
@@ -276,7 +276,7 @@ export default function KeuanganTab({
             {/* Cash on Hand vs Digital Bank */}
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
               <h4 className="font-bold text-gray-900 text-base flex items-center gap-2">
-                <Wallet size={18} className="text-red-600" /> Distribusi Saldo Likuid JALA
+                <Wallet size={18} className="text-amber-600" /> Distribusi Saldo Likuid JALA
               </h4>
               <p className="text-xs text-gray-500">Rincian uang kas tunai di kasir gerai vs uang masuk rekening QRIS</p>
 
@@ -345,17 +345,17 @@ export default function KeuanganTab({
           <div id="jala-financial-report" className="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm max-w-3xl mx-auto space-y-6">
             <div className="flex justify-between items-start border-b border-gray-200 pb-4">
               <div>
-                <span className="text-xs bg-red-50 text-red-600 border border-red-200 font-bold px-2 py-0.5 rounded">
+                <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-bold px-2 py-0.5 rounded">
                   LAPORAN KEUANGAN RESMI PKWU
                 </span>
                 <h3 className="text-xl font-bold text-gray-900 mt-2">Laporan Laba Rugi Usaha</h3>
-                <p className="text-xs text-gray-500">Unit Usaha: JALA Melayu Kontemporer — SMAN 1 Batam</p>
+                <p className="text-xs text-gray-500">Unit Usaha: JALA Melayu Kontemporer (SMAN 1 Batam)</p>
                 <p className="text-[11px] text-gray-400">Periode: Berjalan TA 2025/2026</p>
               </div>
               <div className="flex items-center gap-2 no-print">
                 <button
                   onClick={handlePrint}
-                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
+                  className="px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 rounded-xl text-xs font-black flex items-center gap-1.5 transition shadow-sm"
                 >
                   <Printer size={14} /> Cetak Laporan / PDF
                 </button>
@@ -423,12 +423,12 @@ export default function KeuanganTab({
               </div>
 
               {/* Laba Bersih */}
-              <div className="p-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl flex justify-between items-center font-bold text-base shadow-md">
+              <div className="p-4 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-gray-950 rounded-xl flex justify-between items-center font-bold text-base shadow-md border border-amber-300/60">
                 <div>
-                  <span className="block text-xs text-red-200 font-normal">HASIL AKHIR PERFORMA BISNIS</span>
+                  <span className="block text-xs text-amber-950/80 font-bold">HASIL AKHIR PERFORMA BISNIS</span>
                   <span>LABA BERSIH BERJALAN (NET PROFIT)</span>
                 </div>
-                <span className="font-mono text-xl">{formatRupiah(netCashFlow)}</span>
+                <span className="font-mono text-xl font-black">{formatRupiah(netCashFlow)}</span>
               </div>
 
               {/* Pengesahan / Lembar Tanda Tangan PKWU */}

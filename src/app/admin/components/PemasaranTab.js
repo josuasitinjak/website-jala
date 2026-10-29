@@ -23,8 +23,8 @@ export default function PemasaranTab({
   const [customBroadcastText, setCustomBroadcastText] = useState("");
 
   const templates = {
-    jumat: `🎉 *PROMO JUMAT BERKAH JALA* 🥖✨\n\nHalo Sahabat JALA! Semangat hari Jumat! Dapatkan diskon spesial untuk santapan istirahat Anda:\n\n🔥 *Paket Berdua:* Rp26.000 (Hemat Rp4.000)\n🔥 *Paket Lengkap:* Rp13.500 (Roti Kirai + Es Telang Lemonade)\n\n📍 Siap antar langsung ke kelas & ruang guru Anda!\n👉 Pesan sekarang sebelum kehabisan: http://localhost:3000\n\n_Warisan Melayu Kepri, Sentuhan Modern Praktis_`,
-    bundling: `🍱 *SERBU BUNDLING HEMAT JALA KELAS X HANG LEKIR 9* ✨\n\nLagi lapar pas jam istirahat? Cobain *Roti Kirai Berinti Kari Kentang & Ayam Suwir* dengan aroma kunyit khas Melayu Kepri yang gurih lezat!\n\n✅ Paket Hemat: Mulai Rp10.000 saja\n✅ Minuman Segar: Es Telang Lemonade Rp5.000\n\n🛵 *GRATIS ONGKIR* antar sampai meja kelas kamu!\nPesan cepat via web: http://localhost:3000`,
+    jumat: `🎉 *PROMO JUMAT SPESIAL JALA* 🥖✨\n\nHalo Sahabat JALA! Semangat hari Jumat! Dapatkan diskon spesial untuk santapan istirahat Anda:\n\n🔥 *Paket Berdua:* Rp26.000 (Hemat Rp4.000)\n🔥 *Paket Lengkap:* Rp13.500 (Roti Kirai + Es Telang Lemonade)\n\n📍 Siap antar langsung ke kelas & ruang guru Anda!\n👉 Pesan sekarang sebelum kehabisan: http://localhost:3000\n\n_Warisan Melayu Kepri, Sentuhan Modern Praktis_`,
+    bundling: `🍱 *SERBU BUNDLING HEMAT JALA KELAS X HANG JEBAT 5* ✨\n\nLagi lapar pas jam istirahat? Cobain *Roti Kirai Berinti Kari Kentang & Ayam Suwir* dengan aroma kunyit khas Melayu Kepri yang gurih lezat!\n\n✅ Paket Hemat: Mulai Rp10.000 saja\n✅ Minuman Segar: Es Telang Lemonade Rp5.000\n\n🛵 *GRATIS ONGKIR* antar sampai meja kelas kamu!\nPesan cepat via web: http://localhost:3000`,
     preorder: `📢 *PRE-ORDER H-1 JALA KULINER SMAN 1 BATAM* 🌿\n\nHalo Teman-teman & Bapak/Ibu Guru! Untuk memastikan stok porsi favorit Anda besok aman, kami membuka pemesanan Pre-Order hari ini.\n\nKupon diskon: *JALABERDUA5K* (Potongan Rp5.000 khusus pembelian Paket Berdua).\n\nKlik link ini untuk amankan porsi Anda sekarang: http://localhost:3000`
   };
 
@@ -56,20 +56,20 @@ export default function PemasaranTab({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 p-6 rounded-2xl text-white shadow-md">
+      <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 p-6 rounded-2xl text-gray-950 shadow-md border border-amber-300/50">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <span className="text-xs bg-white/20 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider backdrop-blur-sm">
+            <span className="text-xs bg-gray-950/15 text-gray-950 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
               GROWTH & MARKETING SUITE
             </span>
-            <h3 className="text-xl font-bold mt-2">Pusat Pemasaran & Kampanye JALA</h3>
-            <p className="text-xs text-white/90 mt-1 max-w-xl">
+            <h3 className="text-xl font-extrabold mt-2 tracking-tight">Pusat Pemasaran & Kampanye JALA</h3>
+            <p className="text-xs text-gray-900 font-medium mt-1 max-w-xl">
               Dorong penjualan gerai melalui voucher promo terukur, pesan siaran WhatsApp massal, dan kalender konten kreatif.
             </p>
           </div>
           <button
             onClick={onOpenAddVoucher}
-            className="px-4 py-2.5 bg-white text-red-600 hover:bg-gray-100 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 whitespace-nowrap"
+            className="px-4 py-2.5 bg-gray-950 hover:bg-gray-900 text-amber-300 rounded-xl text-xs font-black transition shadow-sm flex items-center gap-1.5 whitespace-nowrap"
           >
             <Plus size={15} /> Buat Voucher Promo Baru
           </button>
@@ -83,11 +83,11 @@ export default function PemasaranTab({
           <div className="flex justify-between items-center border-b border-gray-100 pb-3">
             <div>
               <h4 className="font-bold text-gray-900 text-base flex items-center gap-2">
-                <Ticket size={18} className="text-red-600" /> Voucher & Kupon Diskon Aktif
+                <Ticket size={18} className="text-amber-600" /> Voucher & Kupon Diskon Aktif
               </h4>
               <p className="text-xs text-gray-500">Kelola kuota kupon belanja pelanggan</p>
             </div>
-            <span className="text-xs font-bold text-red-600 font-mono bg-red-50 px-2 py-0.5 rounded">
+            <span className="text-xs font-bold text-amber-900 font-mono bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
               {vouchers.length} Kupon
             </span>
           </div>
@@ -97,7 +97,7 @@ export default function PemasaranTab({
               <div key={v.id} className="p-4 rounded-xl border border-gray-100 bg-gray-50/70 hover:bg-gray-50 transition flex flex-col justify-between">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-sm bg-red-600 text-white px-2.5 py-0.5 rounded-lg tracking-wider">
+                    <span className="font-mono font-bold text-sm bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 px-2.5 py-0.5 rounded-lg tracking-wider shadow-xs">
                       {v.code}
                     </span>
                     <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
@@ -138,15 +138,15 @@ export default function PemasaranTab({
             <button
               onClick={() => setSelectedTemplate("jumat")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                selectedTemplate === "jumat" ? "bg-red-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                selectedTemplate === "jumat" ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 font-bold shadow-xs" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Jumat Berkah
+              Jumat Spesial
             </button>
             <button
               onClick={() => setSelectedTemplate("bundling")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                selectedTemplate === "bundling" ? "bg-red-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                selectedTemplate === "bundling" ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 font-bold shadow-xs" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               Bundling Istirahat
@@ -154,7 +154,7 @@ export default function PemasaranTab({
             <button
               onClick={() => setSelectedTemplate("preorder")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                selectedTemplate === "preorder" ? "bg-red-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                selectedTemplate === "preorder" ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 font-bold shadow-xs" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               Pre-Order H-1

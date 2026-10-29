@@ -3,7 +3,7 @@
 export const initialProducts = [
   {
     id: 'PROD-01',
-    name: 'Roti Kirai Berinti — Kari Kentang',
+    name: 'Roti Kirai Berinti Kari Kentang',
     category: 'Menu Satuan',
     price: 12000,
     hpp: 6500,
@@ -14,7 +14,7 @@ export const initialProducts = [
   },
   {
     id: 'PROD-02',
-    name: 'Roti Kirai Berinti — Ayam Suwir',
+    name: 'Roti Kirai Berinti Ayam Suwir',
     category: 'Menu Satuan',
     price: 12000,
     hpp: 7200,
@@ -25,7 +25,7 @@ export const initialProducts = [
   },
   {
     id: 'PROD-03',
-    name: 'Roti Kirai Berinti — Keju',
+    name: 'Roti Kirai Berinti Keju',
     category: 'Menu Satuan',
     price: 12000,
     hpp: 7000,
@@ -121,7 +121,7 @@ export const initialTeam = [
 ];
 
 export const initialSettings = {
-  storeName: 'JALA — Contemporary Malay Heritage Culinary',
+  storeName: 'JALA Contemporary Malay Heritage Culinary',
   tagline: 'Warisan Melayu Kepri, Sentuhan Modern Praktis',
   schoolLocation: 'SMAN 1 Batam, Jl. Kolonel Soegiono, Batam Kota',
   deliveryCoverage: 'Seluruh Ruang Kelas, Lab, Ruang Guru & Area Sekolah SMAN 1 Batam',

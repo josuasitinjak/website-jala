@@ -18,6 +18,7 @@ import {
   Edit2
 } from "lucide-react";
 import { EditProductModal } from "./ActionModals";
+import { EditInventoryModal } from "./ActionModals";
 
 export default function OperasionalTab({
   subTab = "pesanan",
@@ -41,10 +42,17 @@ export default function OperasionalTab({
 
   // Filter for Products
   const [productCategoryFilter, setProductCategoryFilter] = useState("Semua");
+  const [productSearch, setProductSearch] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
 
   // Filter for Inventory
   const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState("Semua");
+  const [editingInventory, setEditingInventory] = useState(null);
+
+  // Handle manual inventory edit/save
+  const handleSaveInventory = (id, updates) => {
+    setInventory(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
+  };
 
   const formatRupiah = (num) => {
     return new Intl.NumberFormat("id-ID", {
@@ -107,8 +115,12 @@ export default function OperasionalTab({
 
   // Filtered Products
   const filteredProducts = products.filter(p => {
-    if (productCategoryFilter === "Semua") return true;
-    return p.category === productCategoryFilter;
+    const matchCat = productCategoryFilter === "Semua" || p.category === productCategoryFilter;
+    const matchSearch = !productSearch ||
+      (p.name || "").toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p.id || "").toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p.description || "").toLowerCase().includes(productSearch.toLowerCase());
+    return matchCat && matchSearch;
   });
 
   // Filtered Inventory
@@ -125,7 +137,7 @@ export default function OperasionalTab({
           onClick={() => setSubTab("produk")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
             subTab === "produk"
-              ? "bg-red-600 text-white shadow-sm"
+              ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm font-bold"
               : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
           }`}
         >
@@ -135,7 +147,7 @@ export default function OperasionalTab({
           onClick={() => setSubTab("pesanan")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
             subTab === "pesanan"
-              ? "bg-red-600 text-white shadow-sm"
+              ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm font-bold"
               : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
           }`}
         >
@@ -145,7 +157,7 @@ export default function OperasionalTab({
           onClick={() => setSubTab("inventaris")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
             subTab === "inventaris"
-              ? "bg-red-600 text-white shadow-sm"
+              ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm font-bold"
               : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
           }`}
         >
@@ -157,17 +169,35 @@ export default function OperasionalTab({
       {/* SUB-TAB 1: PRODUK & LAYANAN */}
       {/* ======================================================== */}
       {subTab === "produk" && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="space-y-4">
+          {/* Header & Controls Bar */}
+          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Katalog Produk Kuliner JALA</h3>
-              <p className="text-xs text-gray-500">Kelola harga jual, estimasi HPP, margin, dan ketersediaan menu</p>
+              <h3 className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Package size={18} className="text-amber-600" />
+                Daftar Produk &amp; Layanan Kuliner
+              </h3>
+              <p className="text-xs text-gray-500">Kelola harga jual, estimasi HPP, margin kotor, dan ketersediaan menu</p>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+              {/* Search Menu */}
+              <div className="relative flex-1 md:w-60">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Cari kode atau nama menu..."
+                  value={productSearch}
+                  onChange={e => setProductSearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
+                />
+              </div>
+
+              {/* Category Filter */}
               <select
                 value={productCategoryFilter}
                 onChange={e => setProductCategoryFilter(e.target.value)}
-                className="bg-white border border-gray-200 text-xs rounded-xl px-3 py-2 text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500"
+                className="bg-gray-50 border border-gray-200 text-xs rounded-xl px-3 py-2 text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
               >
                 <option value="Semua">Semua Kategori</option>
                 <option value="Menu Satuan">Menu Satuan</option>
@@ -177,60 +207,124 @@ export default function OperasionalTab({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredProducts.map(product => {
-              const profitMargin = Math.round(((product.price - product.hpp) / product.price) * 100);
-              return (
-                <div key={product.id} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-bold">
-                        {product.id}
-                      </span>
-                      <button
-                        onClick={() => toggleProductStatus(product.id)}
-                        className={`text-xs px-2.5 py-1 rounded-full font-bold transition ${
-                          product.isAvailable
-                            ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                            : "bg-rose-100 text-rose-800 hover:bg-rose-200"
-                        }`}
-                      >
-                        {product.isAvailable ? "✓ Siap Jual" : "✕ Menu Habis"}
-                      </button>
-                    </div>
+          {/* Table: Baris dan Kolom */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50/80 border-b border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="p-4">Kode &amp; Menu</th>
+                    <th className="p-4">Kategori</th>
+                    <th className="p-4">Porsi / Kemasan</th>
+                    <th className="p-4 text-right">Harga Jual</th>
+                    <th className="p-4 text-right">Estimasi HPP</th>
+                    <th className="p-4 text-right">Gross Margin</th>
+                    <th className="p-4 text-center">Status</th>
+                    <th className="p-4 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-xs">
+                  {filteredProducts.map(product => {
+                    const marginNominal = (product.price || 0) - (product.hpp || 0);
+                    const profitMargin = product.price > 0 ? Math.round((marginNominal / product.price) * 100) : 0;
+                    return (
+                      <tr key={product.id} className="hover:bg-amber-50/30 transition">
+                        {/* Kolom 1: Kode & Menu */}
+                        <td className="p-4 max-w-xs">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-bold">
+                              {product.id}
+                            </span>
+                            <span className="font-bold text-gray-900 text-sm">{product.name}</span>
+                          </div>
+                          <p className="text-[11px] text-gray-500 line-clamp-1">{product.description}</p>
+                        </td>
 
-                    <h4 className="font-bold text-gray-900 text-sm mb-1">{product.name}</h4>
-                    <p className="text-xs text-gray-500 line-clamp-2 mb-3">{product.description}</p>
-                    <span className="inline-block text-[10px] bg-red-50 text-red-700 font-medium px-2 py-0.5 rounded mb-3">
-                      {product.portion}
-                    </span>
-                  </div>
+                        {/* Kolom 2: Kategori */}
+                        <td className="p-4 whitespace-nowrap">
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                            {product.category}
+                          </span>
+                        </td>
 
-                  <div className="pt-3 border-t border-gray-100">
-                    <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                      <div>
-                        <span className="text-gray-400 block text-[10px]">Harga Jual</span>
-                        <span className="font-bold text-gray-900 text-sm">{formatRupiah(product.price)}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-400 block text-[10px]">Estimasi HPP</span>
-                        <span className="font-semibold text-gray-600">{formatRupiah(product.hpp)}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-xs bg-gray-50 p-2 rounded-lg mb-2">
-                      <span className="text-gray-500">Gross Margin:</span>
-                      <span className="font-bold text-emerald-600">{profitMargin}% ({formatRupiah(product.price - product.hpp)})</span>
-                    </div>
-                    <button
-                      onClick={() => setEditingProduct(product)}
-                      className="w-full py-2 bg-gray-50 hover:bg-red-50 text-gray-700 hover:text-red-700 border border-gray-200 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5"
-                    >
-                      <Edit2 size={13} /> Edit Harga & Detail Menu
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                        {/* Kolom 3: Porsi */}
+                        <td className="p-4 text-gray-600 font-medium whitespace-nowrap">
+                          <span className="text-[11px] bg-amber-50 text-amber-800 border border-amber-200/80 font-semibold px-2 py-0.5 rounded">
+                            {product.portion}
+                          </span>
+                        </td>
+
+                        {/* Kolom 4: Harga Jual */}
+                        <td className="p-4 text-right font-bold text-gray-900 font-mono whitespace-nowrap text-sm">
+                          {formatRupiah(product.price)}
+                        </td>
+
+                        {/* Kolom 5: Estimasi HPP */}
+                        <td className="p-4 text-right text-gray-600 font-mono whitespace-nowrap">
+                          {formatRupiah(product.hpp)}
+                        </td>
+
+                        {/* Kolom 6: Gross Margin */}
+                        <td className="p-4 text-right font-mono whitespace-nowrap">
+                          <span className="font-bold text-emerald-700 block">{profitMargin}%</span>
+                          <span className="text-[10px] text-gray-400 block">+{formatRupiah(marginNominal)}</span>
+                        </td>
+
+                        {/* Kolom 7: Status Ketersediaan */}
+                        <td className="p-4 text-center whitespace-nowrap">
+                          <button
+                            onClick={() => toggleProductStatus(product.id)}
+                            title={product.isAvailable ? "Klik untuk ubah jadi Habis" : "Klik untuk ubah jadi Siap Jual"}
+                            className={`text-xs px-2.5 py-1 rounded-full font-bold transition inline-flex items-center gap-1.5 border ${
+                              product.isAvailable
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${product.isAvailable ? "bg-emerald-500" : "bg-rose-500"}`}></span>
+                            <span>{product.isAvailable ? "Siap Jual" : "Habis"}</span>
+                          </button>
+                        </td>
+
+                        {/* Kolom 8: Aksi */}
+                        <td className="p-4 text-center whitespace-nowrap">
+                          <button
+                            onClick={() => setEditingProduct(product)}
+                            title="Edit Harga & Detail Menu"
+                            className="px-2.5 py-1 text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition inline-flex items-center gap-1 text-xs font-semibold shadow-sm"
+                          >
+                            <Edit2 size={13} />
+                            <span>Edit</span>
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {filteredProducts.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="p-8 text-center text-gray-400">
+                        Tidak ada produk yang cocok dengan pencarian atau filter.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer Table Summary */}
+            <div className="bg-gray-50/80 px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-2">
+              <span>Menampilkan <strong>{filteredProducts.length}</strong> dari {products.length} menu</span>
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  {products.filter(p => p.isAvailable).length} Siap Jual
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                  {products.filter(p => !p.isAvailable).length} Habis
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -249,7 +343,7 @@ export default function OperasionalTab({
               </div>
               <button
                 onClick={onOpenQuickOrder}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-sm"
               >
                 <Plus size={15} /> Buat Pesanan Baru
               </button>
@@ -264,7 +358,7 @@ export default function OperasionalTab({
                   placeholder="Cari ID resi, nama, lokasi kelas..."
                   value={orderSearch}
                   onChange={e => setOrderSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 />
               </div>
 
@@ -273,7 +367,7 @@ export default function OperasionalTab({
                 <select
                   value={orderStatusFilter}
                   onChange={e => setOrderStatusFilter(e.target.value)}
-                  className="w-full py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                  className="w-full py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 >
                   <option value="Semua">Semua Status Pesanan</option>
                   <option value="Pesanan Diterima">Pesanan Diterima</option>
@@ -289,7 +383,7 @@ export default function OperasionalTab({
                 <select
                   value={orderPaymentFilter}
                   onChange={e => setOrderPaymentFilter(e.target.value)}
-                  className="w-full py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                  className="w-full py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 >
                   <option value="Semua">Semua Pembayaran (QRIS & COD)</option>
                   <option value="QRIS">Hanya QRIS</option>
@@ -361,13 +455,13 @@ export default function OperasionalTab({
                           {order.paymentProof && (
                             <button
                               onClick={() => onViewProof(order.paymentProof)}
-                              className="text-[10px] text-red-600 hover:text-red-800 underline font-bold block mt-1"
+                              className="text-[10px] text-amber-700 hover:text-amber-900 underline font-bold block mt-1"
                             >
                               Lihat Bukti Foto
                             </button>
                           )}
                         </td>
-                        <td className="p-4 font-mono font-bold text-red-600">
+                        <td className="p-4 font-mono font-bold text-gray-900">
                           {formatRupiah(order.total || 0)}
                         </td>
                         <td className="p-4">
@@ -381,7 +475,7 @@ export default function OperasionalTab({
                             <select
                               value={order.status}
                               onChange={e => onUpdateOrderStatus(order.id, e.target.value)}
-                              className="bg-white border border-gray-200 text-gray-700 text-xs rounded-lg px-2 py-1 focus:ring-1 focus:ring-red-500 focus:outline-none"
+                              className="bg-white border border-gray-200 text-gray-700 text-xs rounded-lg px-2 py-1 focus:ring-1 focus:ring-amber-400 focus:outline-none"
                             >
                               <option value="Pesanan Diterima">Pesanan Diterima</option>
                               <option value="Sedang Diproses">Sedang Diproses</option>
@@ -433,7 +527,7 @@ export default function OperasionalTab({
               <select
                 value={inventoryCategoryFilter}
                 onChange={e => setInventoryCategoryFilter(e.target.value)}
-                className="bg-white border border-gray-200 text-xs rounded-xl px-3 py-2 text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500"
+                className="bg-white border border-gray-200 text-xs rounded-xl px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
               >
                 <option value="Semua">Semua Kategori Bahan</option>
                 <option value="Bahan Utama">Bahan Utama</option>
@@ -445,7 +539,7 @@ export default function OperasionalTab({
               </select>
               <button
                 onClick={onOpenRestock}
-                className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-2 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-sm"
               >
                 <Plus size={15} /> Tambah Stok / Restock
               </button>
@@ -464,6 +558,7 @@ export default function OperasionalTab({
                     <th className="p-4">Biaya / Satuan</th>
                     <th className="p-4">Pemasok / Sumber</th>
                     <th className="p-4">Status Stok</th>
+                    <th className="p-4 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-xs">
@@ -476,7 +571,7 @@ export default function OperasionalTab({
                         : "bg-rose-100 text-rose-800 animate-pulse";
 
                     return (
-                      <tr key={item.id} className="hover:bg-gray-50/70 transition">
+                      <tr key={item.id} className="hover:bg-amber-50/30 transition">
                         <td className="p-4">
                           <span className="font-bold text-gray-900 block">{item.name}</span>
                           <span className="text-[10px] text-gray-400 font-mono">{item.id}</span>
@@ -497,6 +592,15 @@ export default function OperasionalTab({
                             {item.status}
                           </span>
                         </td>
+                        <td className="p-4 text-center">
+                          <button
+                            onClick={() => setEditingInventory(item)}
+                            title="Edit Item Inventaris"
+                            className="p-1.5 text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition"
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -514,6 +618,16 @@ export default function OperasionalTab({
           onClose={() => setEditingProduct(null)}
           product={editingProduct}
           onUpdateProduct={handleUpdateProduct}
+        />
+      )}
+
+      {/* Edit Inventory Modal */}
+      {editingInventory && (
+        <EditInventoryModal
+          isOpen={Boolean(editingInventory)}
+          onClose={() => setEditingInventory(null)}
+          item={editingInventory}
+          onSave={handleSaveInventory}
         />
       )}
     </div>

@@ -1,14 +1,26 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'JALA — Roti Kirai Berinti & Es Telang Lemonade | Contemporary Malay Heritage Culinary',
-  description: 'Kuliner khas Melayu Kepulauan Riau beraroma kunyit dalam format gulungan bite-sized siap santap dengan isian gurih praktis dan Es Telang Lemonade alami. Projek PKWU SMAN 1 Batam.',
+  title: 'JALA Roti Kirai Berinti & Es Telang Lemonade | Contemporary Malay Heritage Culinary',
+  description: 'Kuliner khas Melayu Kepulauan Riau beraroma kunyit dalam format gulungan porsi pas siap santap dengan isian gurih praktis dan Es Telang Lemonade alami. Projek PKWU SMAN 1 Batam.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/images/assets/logo.jpeg' }
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="id" style={{ scrollBehavior: 'smooth' }}>
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -32,30 +44,30 @@ export default function RootLayout({ children }) {
             object-fit: contain !important;
             display: inline-block !important;
           }
-          body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
+          body { font-family: 'Poppins', sans-serif; background-color: #fdfcfa; }
           .hero {
-              background: linear-gradient(135deg, #b91c1c, #ef4444);
+              background: linear-gradient(180deg, #fffcf5 0%, #fbf6ec 60%, #fffdf8 100%);
               background-size: cover;
               background-position: center;
-              min-height: 80vh;
+              min-height: 75vh;
               display: flex;
               align-items: center;
           }
-          .hero h1, .hero p { text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.25); }
+          .hero h1, .hero p { text-shadow: none; }
           .nav-link { position: relative; padding: 0.5rem 0; transition: all 0.3s ease; color: #4b5563; }
-          .nav-link.active { color: #dc2626; font-weight: 600; }
+          .nav-link.active { color: #d97706; font-weight: 600; }
           .nav-link.active::after {
               content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
-              height: 3px; background-color: #dc2626; border-radius: 2px;
+              height: 3px; background-color: #f59e0b; border-radius: 2px;
           }
           .whatsapp-float {
               position: fixed; bottom: 30px; right: 30px; background-color: #25D366; color: white;
               width: 60px; height: 60px; border-radius: 50%; text-align: center; font-size: 30px;
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 100; display: flex;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); z-index: 100; display: flex;
               align-items: center; justify-content: center; transition: all 0.3s;
           }
           .product-card, .testimonial-card, .farmer-card { transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; }
-          .product-card:hover, .testimonial-card:hover, .farmer-card:hover { border-color: #fecaca; transform: translateY(-8px); box-shadow: 0 12px 28px rgba(220, 38, 38, 0.12); }
+          .product-card:hover, .testimonial-card:hover, .farmer-card:hover { border-color: #fde68a; transform: translateY(-8px); box-shadow: 0 12px 28px rgba(245, 158, 11, 0.18); }
           .modal-overlay {
               position: fixed; top: 0; left: 0; right: 0; bottom: 0;
               background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
@@ -71,7 +83,7 @@ export default function RootLayout({ children }) {
           .section { padding-top: 5rem; padding-bottom: 5rem; }
         `}} />
       </head>
-      <body className="bg-gray-100">
+      <body className="bg-white text-gray-800 antialiased">
         {children}
       </body>
     </html>

@@ -96,7 +96,7 @@ export default function Sidebar({
     },
     {
       id: "ai_assistant",
-      label: "Konsultasi & Asisten Bisnis",
+      label: "AI Bot & Dokumen Supabase",
       icon: Bot,
       badge: null
     },
@@ -134,15 +134,15 @@ export default function Sidebar({
             <img 
               src="/images/assets/logo.jpeg" 
               alt="Logo JALA" 
-              className="w-10 h-10 rounded-xl object-cover border border-gray-700 shadow-md bg-white shrink-0" 
+              className="w-10 h-10 rounded-xl object-cover border border-amber-400/40 shadow-md bg-white shrink-0" 
               style={{ width: '40px', height: '40px', objectFit: 'cover' }}
             />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight text-white">JALA</span>
-                <span className="text-[10px] bg-red-600/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded font-mono font-bold">PORTAL</span>
+                <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-200 bg-clip-text text-transparent">JALA</span>
+                <span className="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/30 px-1.5 py-0.5 rounded font-mono font-bold">PORTAL</span>
               </div>
-              <p className="text-[11px] text-gray-400 truncate">SMAN 1 Batam · Hang Lekir 9</p>
+              <p className="text-[11px] text-gray-400 truncate">SMAN 1 Batam · Hang Jebat 5</p>
             </div>
           </div>
           <button 
@@ -170,12 +170,12 @@ export default function Sidebar({
                     }}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-xs transition group ${
                       isActive 
-                        ? "bg-red-600/10 text-red-400 border border-red-500/20" 
+                        ? "bg-amber-400/15 text-amber-300 border border-amber-400/30 font-semibold" 
                         : "text-gray-300 hover:bg-gray-800/80 hover:text-white"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Icon size={17} className={isActive ? "text-red-400" : "text-gray-400 group-hover:text-white"} />
+                      <Icon size={17} className={isActive ? "text-amber-400" : "text-gray-400 group-hover:text-white"} />
                       <span>{item.label}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-400">
@@ -198,7 +198,7 @@ export default function Sidebar({
                             }}
                             className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                               isSubActive
-                                ? "bg-red-600 text-white font-semibold shadow-sm"
+                                ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 font-bold shadow-sm"
                                 : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
                             }`}
                           >
@@ -226,17 +226,17 @@ export default function Sidebar({
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-xs transition group ${
                   isActive
-                    ? "bg-red-600 text-white shadow-sm font-semibold"
+                    ? "bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm font-bold"
                     : "text-gray-300 hover:bg-gray-800/80 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Icon size={17} className={isActive ? "text-white" : "text-gray-400 group-hover:text-white"} />
+                  <Icon size={17} className={isActive ? "text-gray-950" : "text-gray-400 group-hover:text-white"} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                    isActive ? "bg-white/20 text-white" : "bg-gray-800 text-gray-300 border border-gray-700"
+                    isActive ? "bg-black/20 text-gray-950" : "bg-gray-800 text-gray-300 border border-gray-700"
                   }`}>
                     {item.badge}
                   </span>
@@ -250,7 +250,7 @@ export default function Sidebar({
         <div className="p-3.5 border-t border-gray-800 bg-gray-950/70">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-white text-xs shrink-0 shadow">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center font-black text-gray-950 text-xs shrink-0 shadow-sm">
                 AD
               </div>
               <div className="min-w-0">

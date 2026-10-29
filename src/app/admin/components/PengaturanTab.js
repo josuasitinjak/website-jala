@@ -24,7 +24,7 @@ export default function PengaturanTab({
         <div className="border-b border-gray-100 pb-4 mb-6 flex justify-between items-center">
           <div>
             <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Store size={22} className="text-red-600" /> Pengaturan Sistem Gerai JALA
+              <Store size={22} className="text-amber-600" /> Pengaturan Sistem Gerai JALA
             </h3>
             <p className="text-xs text-gray-500 mt-1">Konfigurasi profil usaha, target kuota produksi, dan pembayaran QRIS</p>
           </div>
@@ -46,7 +46,7 @@ export default function PengaturanTab({
                   type="text"
                   value={formData.storeName || ""}
                   onChange={e => setFormData({ ...formData, storeName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 />
               </div>
 
@@ -56,7 +56,7 @@ export default function PengaturanTab({
                   type="text"
                   value={formData.tagline || ""}
                   onChange={e => setFormData({ ...formData, tagline: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 />
               </div>
 
@@ -66,7 +66,7 @@ export default function PengaturanTab({
                   type="text"
                   value={formData.schoolLocation || ""}
                   onChange={e => setFormData({ ...formData, schoolLocation: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 />
               </div>
 
@@ -76,7 +76,7 @@ export default function PengaturanTab({
                   type="text"
                   value={formData.whatsappContact || ""}
                   onChange={e => setFormData({ ...formData, whatsappContact: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500 font-mono"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 font-mono transition"
                 />
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function PengaturanTab({
           <div className="flex justify-end pt-4 border-t border-gray-100">
             <button
               type="submit"
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition flex items-center gap-2 shadow-md"
+              className="px-6 py-3 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-gray-950 rounded-xl font-black transition flex items-center gap-2 shadow-md shadow-amber-500/20"
             >
               <Save size={16} /> Simpan Perubahan Pengaturan
             </button>
